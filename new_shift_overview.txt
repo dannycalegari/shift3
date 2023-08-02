@@ -1,0 +1,149 @@
+Program: Shift
+
+Navigates the space of degree 3 monic depressed polynomials, and computes and draws
+Julia sets, Bottcher coordinates, elaminations.
+
+The program has several modes, of which the most important (and the one entered by
+default when running the program without parameters) is Basic mode.
+
+Basic mode (high level overview): 
+
+In basic mode, the state of the program is controlled by the *parameters*, a pair of 
+complex numbers p and q, and a scale e. The numbers p and q are both initialized to 0 and
+e is initialized to 1 (say).
+
+Given the values of the parameters we may compute (in this order) the following data:
+
+	D1. the polynomial f(z):= z^3 + pz + q
+	D2. the Julia set J(f)
+	D3. the derivative f'(z):= 3z^2 + p
+	D4. the critical points c_1, c_2 which are the roots of f' (i.e. the two complex
+		square roots of -p/3)
+	D5. the bottcher coordinates b_1, b_2
+	D6. the Elamination E(f)
+
+When basic mode is entered, 3 windows are created, and filled as follows:
+
+	W1. the parameter window: draw the slice of the cubic Mandelbrot set with parameter p,
+		centered at q, zoomed in to scale e.
+	W2. the julia window: draw the Julia set J(f).
+	W3. the lamination window: draw the Elamination E(f).
+
+Interaction is performed in this mode by
+
+	I1. arrow keys, which adjust the value of the parameter q; or
+	I2. mouse click in the parameter window which selects the value of the parameter p.
+	I3. a/z keys zoom out/in, adjusting e.
+	
+If q is adjusted by interaction I1, then
+
+	1. recompute the data D1--D6
+	2. redraw W2--W3
+
+If p is adjusted by interaction I2, then
+	1. recompute the data D1--D6
+	2. redraw W1--W3
+
+If e is adjusted by interaction I3, then
+	1. redraw W1
+
+------
+
+
+Basic mode (more detailed specification of functions):
+
+global complex constant I is the complex number i (i.e. one of the square roots of -1)
+global int constant max_iter (100 maybe?)
+
+complex f(complex p, complex q, complex z){
+	/* returns the value z^3 + p*z + q */
+	
+	return z^3 + p*z + q
+};
+
+vector<complex> critical_limits(complex p, complex q){
+	/* returns the values of f^n(c_i) for critical points c_i for some large fixed n */
+	
+	vector<complex> L
+
+	define c_1 and c_2 to be the two square roots of -p/3 (i.e. the critical points of
+	z^3 + pz + q)
+	
+	for i=1,2:
+		initialize complex z to c_i
+		iterate z -> f(p,q,z) until
+			case: abs(z) is bigger than 100; 
+			case: number of iterations exceeds max_iter; add the value of z to the vector L
+	
+	return the vector L 
+};
+
+void escape(complex p, complex q, complex z, int &iterates, int &n, vector<complex> L){
+	/* computes iterates of z under z -> z^3 + pz + q until it either gets too big,
+		or gets sufficiently close to L[i] for some i. Sets iterates equal to the number
+		of iterates we do, and sets n equal to i as above or -1 if it goes to infinity */
+		
+	complex zz is initialized to z
+	
+	repeatedly iterate zz -> zz^3 + p*zz + q until
+		case: abs(zz) is bigger than 100; set iterates = number of iterations and n = -1
+		case: abs(zz-L[i]) is smaller than 0.00001; set iterates = number of iterations and n = i
+		case: number of iterations exceeds max_iter; set iterates = 0 and n = -2
+};
+
+
+void draw_Mandelbrot_slice(complex p, complex q, double e){
+	/* draws slice of cubic Mandelbrot set with parameter p, 
+		centered at q and zoomed in to scale e */
+
+		
+	define c_1 and c_2 to be the two square roots of -p/3 (i.e. the critical points
+		of any polynomial of the form z^3 + pz + anything)
+	for -1 <= x <= 1 and -1 <= y <= 1 {
+		define qq := q + xe + ye*I
+		in the parameter window draw a dot at coordinates (x,y) with a color
+		determined by the values of escape(p,qq,c_1,&iterates,&n,NULL) and escape(p,qq,c_2,&iterates,&n,NULL)
+	}; 
+};
+
+void draw_Julia_set(complex p, complex q, double e){
+	/* draws Julia set of polynomial z^3 + pz + q 
+		centered at 0 and zoomed in to scale e */
+	
+	vector <complex> L = critical_limits(p,q)	
+		
+	for -1 <= x <= 1 and -1 <= y <= 1 {
+		define z := x + y*I
+		in the julia window draw a dot at coordinates (x,y) with a color
+		determined by the value of escape(p,q,z,&iterates,&n,L)
+	};
+};
+
+struct bottcher_coordinate {
+	a pair of complex numbers b1, b2
+};
+
+double green_function(complex p, complex q, complex z){
+	/* log of absolute value of bottcher coordinate */
+	complex zz is initialized to z
+	
+	iterate zz -> f(zz) until absolute value is at least 100, and let
+	n be the number of iterates, unless n>max_iter
+
+	return log(zz)/3^n where n is as above or return 0 if n>max_iter.
+		
+};
+
+complex bottcher_ray_direction(complex p, complex q, complex z) {
+	/* computes the direction to move along the bottcher ray */
+	
+	compute the derivative of the green_function of z, (z+a), (z+b) for small
+	complex numbers a,b and from this determine the gradient of green_function at z
+};
+
+bottcher_coordinate compute_bottcher_coordinate(complex p, complex q, complex c){
+	/* computes the bottcher coordinate of the critical point c for the
+		polynomial z^3 + pz + q */
+
+	(to do)
+};
