@@ -1,6 +1,6 @@
 /* polynomial.cc 
 
-	functions concerning a degree 3 polynomial of the form
+	basic functions for a cubic depressed polynomial; i.e. of the form
 	
 	f(z) = z^3 + pz + q for complex numbers p, q
 
@@ -10,6 +10,13 @@
 #define cpx		complex<double>				// complex number
 #define PI 		3.1415926535897932384626433
 cpx I (0.0,1.0);
+
+Probably should re-implement this with a new struct 'poly' which is
+a cubic depressed polynomial
+
+struct poly{
+	cpx p,q;
+};
 
 */
 
