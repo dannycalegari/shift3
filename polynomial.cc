@@ -1,163 +1,63 @@
-/* polynomial.cc */
+/* polynomial.cc 
 
-/* 
-	polynomial P is a vector of cpx
-   	degree d = P.size()-1;
-   	P corresponds to the polynomial  z -> P[0]z^d + P[1]z^{d-1} + . .  + P[d]
+	functions concerning a degree 3 polynomial of the form
+	
+	f(z) = z^3 + pz + q for complex numbers p, q
+
+	somewhere (earlier?) we need:
+	
+#include <complex>
+#define cpx		complex<double>				// complex number
+#define PI 		3.1415926535897932384626433
+cpx I (0.0,1.0);
+
 */
 
-double pow(double base, int exponent){
-	if(exponent==0){
-		return(1.0);
-	} else {
-		return(base*pow(base,exponent-1));
-	};
+cpx eval(cpx p, cpx q, cpx z){
+	// returns value of polynomial on z; i.e z^3 + p*z + q
+	return((z*z*z) + (p*z) + q);
 };
 
-int degree(polynomial P){
-	return(P.size()-1);
+cpx derivative(cpx p, cpx q, cpx z){
+	// returns derivative of polynomial; i.e. 3*z^2 + p
+	return((3*z*z)+p);
 };
 
-cpx eval(polynomial P, cpx z){
-	cpx w;
-	int i;
+cpx* critical_points(cpx p, cpx q, cpx z){
+	// returns critical points of polynomial; i.e. roots of derivative
+	// returns as an array of cpx numbers
 	
-	w=0.0;
-	for(i=0;i<P.size();i++){
-		w=(z*w) + P[i];
-		// w_0 = P[0], w_1 = zP[0]+P[1], w_2 = z^2P[0]+zP[1]+P[2] etc
-	};
-	
-	return(w);
+	cpx c[2];
+	c[0]=sqrt(-1.0*p/3.0);
+	c[1]=-1.0*c[0];
+	return(c);
 };
 
-cpx eval_iterate(polynomial P, cpx z, int n){
-	cpx w;
-	int i;
-	w=z;
-	for(i=0;i<n;i++){
-		w=eval(P,w);
-	};
+cpx* roots(cpx p, cpx q){
+	// returns roots of depressed cubic z^3 + p*z + q
+	// using Cardano's formula
+	// returns as an array r of cpx numbers
 	
-	return(w);
+	cpx r[3];
+	cpx Delta;
+	cpx u, C, zeta;
+	
+	zeta = exp(I*2.0*PI/3.0);	// complex cube root of 1
+	Delta = (q*q/4.0) + (p*p*p/27.0);	// discriminant of cubic
+	u = (-1.0*q/2.0)+sqrt(Delta);
+	C = exp(log(u)/3.0);	// complex cube root of u
+	r[0] = C - (p/(3.0*C));
+	r[1] = (C*zeta) - (p/(3.0*C*zeta));
+	r[2] = (C*zeta*zeta) - (p/(3.0*C*zeta*zeta));
+	
+	return(r);	
 };
 
-polynomial derivative(polynomial P){
-	polynomial Q;
-	int i;
-	double t;
-	Q.clear();
-	for(i=0;i<P.size()-1;i++){
-		t=(double) P.size()-i-1;
-		Q.push_back(P[i]*t);
-	};
-	return(Q);
-};
+cpx* preimage(cpx p, cpx q, cpx z){
+	// returns w such that w^3 + p*w + q = z
+	// returns as an array r of cpx numbers
+	// entries of r are the roots of the polynomial w^3 + p*w + (q-z);
 
-polynomial quotient(polynomial A, polynomial B){
-	// returns the unique polynomial Q with A = QB+R and deg(R) < deg(B)
-	polynomial Q,R;	
-	Q.clear();	// initialize
-	cpx w;
-	int i;
-	R=A;	// initialize
-	
-	if(B[0]==0.0){ // make sure B doesn't start with zero!
-		cout << "leading coefficient of nonzero polynomial is zero! \n";
-		cout.flush();
-		assert(1==0);
-	};
-	
-	
-	while(R.size()>=B.size()){
-		w=R[0]/B[0];
-		Q.push_back(w);	// add R[0]/B[0] as coefficient to Q
-		for(i=0;i<B.size();i++){	// subtract B*R[0]*z^{difference in degrees} from R
-			R[i]=R[i]-B[i]*w;
-		};
-		// leading coefficient of R is zero; we need to remove it.
-		R.erase(R.begin());
-	};
-	
-	return(Q);
-};
-
-polynomial remainder(polynomial A, polynomial B){
-	// returns the unique polynomial R with A = QB+R and deg(R) < deg(B)
-	polynomial Q,R;	
-	Q.clear();	// initialize
-	cpx w;
-	int i;
-	R=A;	// initialize
-	
-	if(B[0]==0.0){ // make sure B doesn't start with zero!
-		cout << "leading coefficient of nonzero polynomial is zero! \n";
-		cout.flush();
-		assert(1==0);
-	};
-	
-	
-	while(R.size()>=B.size()){
-		w=R[0]/B[0];
-		Q.push_back(w);	// add R[0]/B[0] as coefficient to Q
-		for(i=0;i<B.size();i++){	// subtract B*R[0]*z^{difference in degrees} from R
-			R[i]=R[i]-B[i]*w;
-		};
-		// leading coefficient of R is zero; we need to remove it.
-		R.erase(R.begin());
-	};
-	
-	return(R);
-};
-
-cvec roots(polynomial P){
-	polynomial PP, Q, L;
-	cvec R;
-	cpx z;
-	int step;
-	
-	R.clear();	// find each root by Newton's method then iteratively divide
-	PP=P;	// initialize
-	step=0;
-	while(PP.size()-1>2){
-	//	cout << "polynomial has degree " << PP.size()-1 << "\n";
-	// find next root
-		z=3.0+2.0*I;
-		Q=derivative(PP);
-
-		while(abs(eval(PP,z))>0.000001){
-			step=0;
-			if(step>100 || abs(eval(Q,z))<0.000001){
-				step=0;
-				z=0.3*I+(double)rand()/(double)(RAND_MAX/3.0);
-			};
-			z=z-(eval(PP,z)/eval(Q,z));	// what if eval(Q,z)=0?
-			step++;
-		};
-	//	cout << "found an approximate root " << z << "\n";
-		R.push_back(z);
-		// create L the linear polynomial z - z_0 where z_0 is the root we found
-		L.clear();
-		L.push_back(1.0);
-		L.push_back(-z);	
-		// divide PP by L and throw away the remainder
-		PP=quotient(PP,L);
-	};
-	if(PP.size()-1==2){	// quadratic formula
-		z=(-1.0*PP[1]+sqrt(PP[1]*PP[1]-4.0*PP[0]*PP[2]))/(2.0*PP[0]);
-		R.push_back(z);
-		z=(-1.0*PP[1]-sqrt(PP[1]*PP[1]-4.0*PP[0]*PP[2]))/(2.0*PP[0]);
-		R.push_back(z);
-	};
-	if(PP.size()-1==1){	// linear formula
-		z=-1.0*PP[1]/PP[0];
-		R.push_back(z);
-	};
-	
-	return(R);
-};
-
-cvec critical_points(polynomial P){
-	return roots(derivative(P));
+	return(roots(p,q-z));
 };
 
