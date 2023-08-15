@@ -30,7 +30,7 @@ cpx derivative(cpx p, cpx q, cpx z){
 	return((3*z*z)+p);
 };
 
-cpx* critical_points(cpx p, cpx q, cpx z){
+std::array<cpx, 2> critical_points(cpx p, cpx q, cpx z){
 	// returns critical points of polynomial; i.e. roots of derivative
 	// returns as an array of cpx numbers
 	
@@ -40,7 +40,7 @@ cpx* critical_points(cpx p, cpx q, cpx z){
 	return(c);
 };
 
-cpx* roots(cpx p, cpx q){
+std::array<cpx, 3> roots(cpx p, cpx q){
 	// returns roots of depressed cubic z^3 + p*z + q
 	// using Cardano's formula
 	// returns as an array r of cpx numbers
@@ -60,7 +60,7 @@ cpx* roots(cpx p, cpx q){
 	return(r);	
 };
 
-cpx* preimage(cpx p, cpx q, cpx z){
+std::array<cpx, 3> preimage(cpx p, cpx q, cpx z){
 	// returns w such that w^3 + p*w + q = z
 	// returns as an array r of cpx numbers
 	// entries of r are the roots of the polynomial w^3 + p*w + (q-z);
