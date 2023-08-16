@@ -1,72 +1,67 @@
-/* green.cc */
+/* green.cc 
 
-double green(polynomial P, cpx z){
-	/* returns exponential of Green function; 
-	well-defined iff z is in
-	the attracting basin of infinity. 
-	This is the absolute value of the
-	bottcher coordinate. */
-	int i,maxiter;
-	cpx w;
-	double T,d,maxsize;
-	
-	d=(double) degree(P);
-	w=z;
-	maxiter=255;
-	maxsize=1000.0;
-	for(i=0;i<maxiter;i++){
-		w=eval(P,w);
-		if(abs(w)>maxsize){
-	//		cout << "f^" << i+1 << "(c)=" << w << "\n";
-			T=log(abs(w));
-			return(exp(T/pow(d,i+1)));
-		};
+bottcher coordinates for cubic depressed polynomial
+
+also routine to draw green lines
+
+*/
+
+double pow(double d, int i){
+	// returns d^i
+	if(i==0){
+		return(1.0);
+	} else {
+		return(d*pow(d,i-1));
 	};
-	
-	return(1.0);
 };
 
-cpx bottcher_coordinate(polynomial P, cpx z){
-	/* returns the bottcher coordinate of z;
-	well-defined iff z is in the attracting
-	domain of infinity and not on a segment 
-	tipped by a critical point. */
+
+cpx bottcher(cpx p, cpx q, cpx z){
+	/* returns bottcher coordinate of z for the polynomial
+	z^3 + z*p + q
 	
-	double maxsize,alpha,beta;
-	int i,maxiter,d;
-	cpx w,ww,wd,zz,y;
-	bool escaped;
-	escaped=false;
+	Well-defined iff z is in the attracting basin of infinity;
+	otherwise by default return 1.0;
+	*/
 	
-	maxiter=255;
-	maxsize=100.0;
+	int i, escape_iterate, max_iterate;
+	cpx w,b;
+	double T,b_abs,b_arg, maxsize;
+	bool escapes;
+	
+	maxsize=1000.0;
+	max_iterate=20;
 	w=z;
+	escapes=false;
 	
-	for(i=0;i<maxiter;i++){
-		w=eval(P,w);
+	// determine absolute value b_abs of bottcher coordinate
+	
+	for(i=0;i<max_iterate;i++){
+		w=eval(p,q,w);
 		if(abs(w)>maxsize){
-	//		cout << "f^" << i+1 << "(c)=" << w << "\n";
-			d=i+1;
-			escaped=true;
-			i=maxiter;
+			T=log(abs(w));
+			b_abs=exp(T/pow(3.0,i+1));
+			escapes=true;
+			escape_iterate=i+1;
+			i=max_iterate;	// escape loop; is there a more elegant way?
 		};
 	};
-	
-	if(escaped==false){
+	if(escapes==false){
 		return(1.0);
 	};
 	
+	// determine argument b_arg of bottcher coordinate
 	
-	// f^d(z)=w;
-	alpha=arg(w);
-
-//	cout << "target argument: " << alpha << "\n";
+	double alpha;
+	cpx ww,wd,zz,y;
+	
+	alpha=arg(w);	// argument of f^escape_iterate(z)
 
 	zz=z;
 	while(abs(zz)<maxsize){
 
-		w=eval_iterate(P,zz,d);
-		ww=eval_iterate(P,zz+0.0001,d);
+		w=eval_iterate(p,q,zz,escape_iterate);
+		ww=eval_iterate(p,q,zz+0.0001,escape_iterate);
 		wd=(ww-w)/0.0001;	// approximate derivative of w(z)
 		
 		/* head in the direction of y
@@ -76,30 +71,21 @@ cpx bottcher_coordinate(polynomial P, cpx z){
 		y=abs(w)*1.0001*exp(I*alpha);
 		zz=zz+((y-w)/wd);
 		
-	//	cout << abs(zz) << " , " << arg(zz) << "\n";
-	//	cout << "wd: " << wd << "\n";
 		
 		if(abs(w)>maxsize*maxsize){
-			d=d-1;
-			w=eval_iterate(P,zz,d);
+			escape_iterate=escape_iterate-1;
+			w=eval_iterate(p,q,zz,escape_iterate);
 			alpha=arg(w);
 		};
 	};
 	
-	beta=arg(zz);
+	b_arg=arg(zz);
 	
-	/*
-	cout << "seed gamma is " << gamma << "\n";
-	cout << "beta is " << beta << "\n";
-	cout << "beta times " << degree(P) << "^" << d << "=" << beta*pow(degree(P),d) << "\n";
-	cout << w << "\n";
-	*/
-	w=green(P,z)*exp(I*beta);
-//	cout << abs(w) << " , " << arg(w) << "\n";
+	w=b_abs*exp(I*b_arg);
 	return(w);
 };
 
-// vector<leaf>
+/*
 
 vector<leaf> critical_bottcher_coordinates(polynomial P){
 	vector<leaf> CL;
@@ -184,3 +170,4 @@ vector<leaf> critical_bottcher_coordinates(polynomial P){
 	return(CL);
 };
 
+*/
