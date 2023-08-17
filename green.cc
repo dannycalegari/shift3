@@ -85,6 +85,54 @@ cpx bottcher(cpx p, cpx q, cpx z){
 	return(w);
 };
 
+void draw_Julia_green(cpx p, cpx q){
+	/* draws approximate green gradient flowlines (ie lines whose bottcher coordinates
+	have constant argument) for cubic polynomial z^3 + p*z + q. Along the way we get
+	an estimate of the Bottcher coordinates of the critical points; probably this is
+	faster than the method above, so some future version of this program should return
+	these coordinates. */
+	
+	vector <cpx> flow_segment;	
+	cpx b, z;
+	
+	/* initializing flow segment */
+	
+	flow_segment.clear();
+	
+	flow_segment.push_back(1000000.0);	// 10^6 = (10^2)^3
+	b = newton_preimage(p,q,1000000.0,100.0);	// preimage closest to 100.0
+	
+	/* initial segment is a straight line consisting of 10 segments 
+	subdivided logarithmically from 1000000.0 to b */
+	
+	double S,T;
+	
+	for(S=0.9;S>=0.0;S=S-0.1){
+		T=exp(log(100.0)*exp(S*log(3.0)));	// from 100 to 1000000
+		z=b+((T-100.0)/999900.0)*(1000000.0-b);
+		flow_segment.push_back(z);
+	};
+	
+	/* continuing flow segment by inverse image, 
+	obtained by Newton's method for continuity */
+	
+	int i,j;
+	j=10;	// initial value
+	
+	for(i=0;i<50;i++){
+		z=newton_preimage(p,q,flow_segment(j-9),flow_segment(j));
+		flow_segment.push_back(z);
+		j++;
+	};
+	
+	// draw routine
+	// draw line segment flow_segment point by point 
+	// (only the part of the segment that appears on the screen, i.e. with
+	// absolute value < 2 or so
+	//
+	// TO DO
+};
+
 /*
 
 vector<leaf> critical_bottcher_coordinates(polynomial P){

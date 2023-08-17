@@ -25,6 +25,21 @@ cpx eval(cpx p, cpx q, cpx z){
 	return((z*z*z) + (p*z) + q);
 };
 
+cpx eval(cpx p, cpx q, cpx z, int n){
+	// returns value of nth iterate of polynomial on z; 
+	// i.e f(z) = z^3 + p*z + q
+	// returns f^n(z)
+	int i;
+	cpx w;
+	
+	w=z;
+	
+	for(i=0;i<n;i++){
+		w=eval(p,q,w);
+	};
+	return(w);
+};
+
 cpx derivative(cpx p, cpx q, cpx z){
 	// returns derivative of polynomial; i.e. 3*z^2 + p
 	return((3*z*z)+p);
@@ -60,11 +75,35 @@ std::array<cpx, 3> roots(cpx p, cpx q){
 	return(r);	
 };
 
+cpx newton_root(cpx p, cpx q, cpx z){
+	// finds root by Newton's method with initial guess z
+	// useful for analytic continuation of paths
+	// numerically unstable near a multiple root!
+	
+	cpx w,a,b;
+	w=z;	// initial guess
+	a=1.0;
+	while(abs(a)>0.00000001){
+		a=(w*w*w)+(p*w)+q;
+		b=(3*w*w)+p;
+		w=w-(a/b);
+	};
+	return(w);
+
+};
+
 std::array<cpx, 3> preimage(cpx p, cpx q, cpx z){
 	// returns w such that w^3 + p*w + q = z
 	// returns as an array r of cpx numbers
 	// entries of r are the roots of the polynomial w^3 + p*w + (q-z);
 
 	return(roots(p,q-z));
+};
+
+cpx newton_preimage(cpx p, cpx q, cpx z, cpx ww){
+	// returns w such that w^3 + p*w + q = z by Newton's method
+	// with initial guess ww
+	
+	return(newton_root(p,q-z,ww));
 };
 
