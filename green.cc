@@ -156,10 +156,18 @@ vector<vector<cpx>> Julia_green(cpx p, cpx q){
 	/* compute two other preimages of initial flow_segment */
 	
 	flow_segment_2.clear();
-	flow_segment_2.push_back(b1);
+	L=abs(b1);
+	LL=L*L*L;
+	for(S=1.0;S>=0.0;S=S-0.1){
+		T=exp(log(L)*exp(S*log(3.0)));	// from 100 to 1000000
+		z=L+((T-L)/(LL-L))*(LL-L);
+		z=z*exp(I*arg(b1));
+		flow_segment_2.push_back(z);
+	};	
+	
 	j=1;	// initial value
 	for(i=1;i<flow_segment.size()-10;i++){
-		z=newton_preimage(p,q,flow_segment[j],flow_segment_2[j-1]);
+		z=newton_preimage(p,q,flow_segment[j],flow_segment_2[10+j-1]);
 		flow_segment_2.push_back(z);
 		j++;
 	};
@@ -167,10 +175,18 @@ vector<vector<cpx>> Julia_green(cpx p, cpx q){
 	flow_collection.push_back(flow_segment_2);	// add segment to the collection
 	
 	flow_segment_2.clear();
-	flow_segment_2.push_back(b2);
+	L=abs(b2);
+	LL=L*L*L;
+	for(S=1.0;S>=0.0;S=S-0.1){
+		T=exp(log(L)*exp(S*log(3.0)));	// from 100 to 1000000
+		z=L+((T-L)/(LL-L))*(LL-L);
+		z=z*exp(I*arg(b2));
+		flow_segment_2.push_back(z);
+	};	
+	
 	j=1;	// initial value
 	for(i=1;i<flow_segment.size()-10;i++){
-		z=newton_preimage(p,q,flow_segment[j],flow_segment_2[j-1]);
+		z=newton_preimage(p,q,flow_segment[j],flow_segment_2[10+j-1]);
 		flow_segment_2.push_back(z);
 		j++;
 	};
@@ -185,13 +201,33 @@ vector<vector<cpx>> Julia_green(cpx p, cpx q){
 		c=preimage(p,q,flow_collection[l][0]);
 		for(k=0;k<3;k++){
 			flow_segment.clear();
-			flow_segment.push_back(c[k]);
-			j=1;
-			for(i=1;i<flow_collection[l].size()-10;i++){
-				z=newton_preimage(p,q,flow_collection[l][j],flow_segment[j-1]);
-				flow_segment.push_back(z);
-				j++;
-			};	
+			
+			if(l<9){
+				L=abs(c[k]);
+				LL=L*L*L;
+				for(S=1.0;S>=0.0;S=S-0.1){
+					T=exp(log(L)*exp(S*log(3.0)));	// from 100 to 1000000
+					z=L+((T-L)/(LL-L))*(LL-L);
+					z=z*exp(I*arg(c[k]));
+					flow_segment.push_back(z);
+				};	
+	
+				j=1;	// initial value
+				for(i=1;i<flow_collection[l].size()-10;i++){
+					z=newton_preimage(p,q,flow_collection[l][j],flow_segment[10+j-1]);
+					flow_segment.push_back(z);
+					j++;
+				};		
+			} else {
+				flow_segment.push_back(c[k]);
+				j=1;
+				for(i=1;i<flow_collection[l].size()-10;i++){
+					z=newton_preimage(p,q,flow_collection[l][j],flow_segment[j-1]);
+					flow_segment.push_back(z);
+					j++;
+				};	
+			};
+			
 			flow_collection.push_back(flow_segment);
 		};
 	};
