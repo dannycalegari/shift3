@@ -25,7 +25,7 @@ cpx eval(cpx p, cpx q, cpx z){
 	return((z*z*z) + (p*z) + q);
 };
 
-cpx eval(cpx p, cpx q, cpx z, int n){
+cpx eval_iterate(cpx p, cpx q, cpx z, int n){
 	// returns value of nth iterate of polynomial on z; 
 	// i.e f(z) = z^3 + p*z + q
 	// returns f^n(z)
@@ -42,14 +42,14 @@ cpx eval(cpx p, cpx q, cpx z, int n){
 
 cpx derivative(cpx p, cpx q, cpx z){
 	// returns derivative of polynomial; i.e. 3*z^2 + p
-	return((3*z*z)+p);
+	return((3.0*z*z)+p);
 };
 
 std::array<cpx, 2> critical_points(cpx p, cpx q, cpx z){
 	// returns critical points of polynomial; i.e. roots of derivative
 	// returns as an array of cpx numbers
 	
-	cpx c[2];
+	array<cpx, 2> c;
 	c[0]=sqrt(-1.0*p/3.0);
 	c[1]=-1.0*c[0];
 	return(c);
@@ -60,7 +60,7 @@ std::array<cpx, 3> roots(cpx p, cpx q){
 	// using Cardano's formula
 	// returns as an array r of cpx numbers
 	
-	cpx r[3];
+	array<cpx, 3> r;
 	cpx Delta;
 	cpx u, C, zeta;
 	
@@ -85,7 +85,7 @@ cpx newton_root(cpx p, cpx q, cpx z){
 	a=1.0;
 	while(abs(a)>0.00000001){
 		a=(w*w*w)+(p*w)+q;
-		b=(3*w*w)+p;
+		b=(3.0*w*w)+p;
 		w=w-(a/b);
 	};
 	return(w);

@@ -85,31 +85,54 @@ cpx bottcher(cpx p, cpx q, cpx z){
 	return(w);
 };
 
-void draw_Julia_green(cpx p, cpx q){
-	/* draws approximate green gradient flowlines (ie lines whose bottcher coordinates
+vector<vector<cpx>> Julia_green(cpx p, cpx q){
+	/* returns approximate green gradient flowlines (ie lines whose bottcher coordinates
 	have constant argument) for cubic polynomial z^3 + p*z + q. Along the way we get
 	an estimate of the Bottcher coordinates of the critical points; probably this is
 	faster than the method above, so some future version of this program should return
 	these coordinates. */
 	
-	vector <cpx> flow_segment;	
-	cpx b, z;
+	vector<vector<cpx>> flow_collection;
+	vector<cpx> flow_segment, flow_segment_2;	
+	cpx a, b, b1, b2, z;
+	array<cpx, 3> c;
+	double L,LL;	// large real number, eg 100
+	
+	L=100.0;
+	LL=L*L*L;
+	
+	flow_collection.clear();
 	
 	/* initializing flow segment */
 	
 	flow_segment.clear();
 	
-	flow_segment.push_back(1000000.0);	// 10^6 = (10^2)^3
-	b = newton_preimage(p,q,1000000.0,100.0);	// preimage closest to 100.0
+	flow_segment.push_back(LL);	
+	c = preimage(p,q,LL);	// array of 3 preimages
+	
+	b = newton_preimage(p,q,LL,L);	// b is preimage closest to L
+
+	// b1 and b2 are the other two preimages
+
+	if(abs(b-c[0])<0.01){
+		b1=c[1];
+		b2=c[2];
+	} else if(abs(b-c[1])<0.01){
+		b1=c[0];
+		b2=c[2];
+	} else {
+		b1=c[0];
+		b2=c[1];
+	};
 	
 	/* initial segment is a straight line consisting of 10 segments 
-	subdivided logarithmically from 1000000.0 to b */
+	subdivided logarithmically from LL to b */
 	
 	double S,T;
 	
 	for(S=0.9;S>=0.0;S=S-0.1){
-		T=exp(log(100.0)*exp(S*log(3.0)));	// from 100 to 1000000
-		z=b+((T-100.0)/999900.0)*(1000000.0-b);
+		T=exp(log(L)*exp(S*log(3.0)));	// from 100 to 1000000
+		z=b+((T-L)/(LL-L))*(LL-b);
 		flow_segment.push_back(z);
 	};
 	
@@ -119,11 +142,62 @@ void draw_Julia_green(cpx p, cpx q){
 	int i,j;
 	j=10;	// initial value
 	
-	for(i=0;i<50;i++){
-		z=newton_preimage(p,q,flow_segment(j-9),flow_segment(j));
+	for(i=0;i<500;i++){
+		z=newton_preimage(p,q,flow_segment[j-9],flow_segment[j]);
 		flow_segment.push_back(z);
 		j++;
+		if(abs(flow_segment[j-1]-flow_segment[j])<0.0001){	// keep going until segment is small
+			i=500;
+		};
 	};
+	
+	flow_collection.push_back(flow_segment);	// add segment to the collection
+
+	/* compute two other preimages of initial flow_segment */
+	
+	flow_segment_2.clear();
+	flow_segment_2.push_back(b1);
+	j=1;	// initial value
+	for(i=1;i<flow_segment.size()-10;i++){
+		z=newton_preimage(p,q,flow_segment[j],flow_segment_2[j-1]);
+		flow_segment_2.push_back(z);
+		j++;
+	};
+	
+	flow_collection.push_back(flow_segment_2);	// add segment to the collection
+	
+	flow_segment_2.clear();
+	flow_segment_2.push_back(b2);
+	j=1;	// initial value
+	for(i=1;i<flow_segment.size()-10;i++){
+		z=newton_preimage(p,q,flow_segment[j],flow_segment_2[j-1]);
+		flow_segment_2.push_back(z);
+		j++;
+	};
+	
+	flow_collection.push_back(flow_segment_2);	// add segment to the collection
+	
+	/* recursively add all preimages of last added flow segments */
+	
+	int l,k;
+	
+	for(l=1;l<81;l++){
+		c=preimage(p,q,flow_collection[l][0]);
+		for(k=0;k<3;k++){
+			flow_segment.clear();
+			flow_segment.push_back(c[k]);
+			j=1;
+			for(i=1;i<flow_collection[l].size()-10;i++){
+				z=newton_preimage(p,q,flow_collection[l][j],flow_segment[j-1]);
+				flow_segment.push_back(z);
+				j++;
+			};	
+			flow_collection.push_back(flow_segment);
+		};
+	};
+
+	
+	return(flow_collection);
 	
 	// draw routine
 	// draw line segment flow_segment point by point 
