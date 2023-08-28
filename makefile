@@ -1,10 +1,24 @@
-CC=g++ -std=c++11
-CFLAGS=-g -Wall -O3 -fast
-IFLAGS=-I/opt/X11/include
-LFLAGS=-L/opt/X11/lib -lX11
-all: shift3
+CXX = g++
+CXXFLAGS = -std=c++17 -I. `pkg-config --cflags gtkmm-3.0`
+LDFLAGS = `pkg-config --libs gtkmm-3.0`
 
-shift3: shift3.cc graphics.cc polynomial.cc lamination.cc green.cc tautological.cc julia.cc mandelbrot.cc interface.cc
-	$(CC) $(CFLAGS) $(IFLAGS) -o shift3 shift3.cc $(LFLAGS) -lm
+SRCDIR = src
+BUILDDIR = build
 
-clean: rm shift3
+SOURCES = main.cc shift_application.cc shift_drawing_area.cc
+OBJECTS = $(SOURCES:%.cc=$(BUILDDIR)/%.o)
+EXECUTABLE = shift3
+
+all: $(EXECUTABLE)
+
+$(EXECUTABLE): $(OBJECTS)
+	$(CXX) $(OBJECTS) $(LDFLAGS) -o $@
+
+$(BUILDDIR)/%.o: $(SRCDIR)/%.cc
+	mkdir -p $(BUILDDIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+clean:
+	rm -rf $(BUILDDIR) $(EXECUTABLE)
+
+.PHONY: all clean
