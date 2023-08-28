@@ -21,8 +21,9 @@ void ShiftApplication::on_activate() {
     window = new Gtk::Window();
     p_square = new ShiftDrawingArea();
     q_square = new ShiftDrawingArea();
-    julia_square = new ShiftDrawingArea();
+    julia_square = new JuliaDrawingArea();
     elamination_square = new ShiftDrawingArea();
+
 
     p_square->set_size_request(250, 250);
     q_square->set_size_request(250, 250);

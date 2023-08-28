@@ -3,8 +3,6 @@
 ShiftDrawingArea::ShiftDrawingArea() {
     add_events(Gdk::BUTTON_PRESS_MASK);
     green_mode = false;
-    p = 0;
-    q = 0;
     has_input_point = false;
     signal_draw().connect(sigc::mem_fun(*this, &ShiftDrawingArea::on_draw));
     signal_button_press_event().connect(sigc::mem_fun(*this, &ShiftDrawingArea::on_button_press));
@@ -43,8 +41,6 @@ bool ShiftDrawingArea::on_button_press(GdkEventButton* event) {
     return true;
 }
 
-
-
 bool ShiftDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
     Gtk::Allocation allocation = get_allocation();
     const int width = allocation.get_width();
@@ -72,7 +68,3 @@ bool ShiftDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 
     return true;
 }
-
-
-
-
