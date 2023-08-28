@@ -2,10 +2,11 @@
 
 #include <gtkmm.h>
 #include <cairomm/context.h>
+#include "polynomial.h"
 
-class ShiftDrawingArea : public Gtk::DrawingArea {
+class JuliaDrawingArea : public Gtk::DrawingArea {
 public:
-    ShiftDrawingArea();
+    JuliaDrawingArea();
     void set_green_mode(bool green);
     void set_input_point(int x, int y);
 
@@ -16,7 +17,7 @@ protected:
 	
 private:
     bool green_mode;
-    int p, q;
+    cpx p, q;
     int width, height;
     bool has_input_point;
     int input_x, input_y;
