@@ -2,16 +2,16 @@
 
 ShiftDrawingArea::ShiftDrawingArea() {
     add_events(Gdk::BUTTON_PRESS_MASK);
-    green_mode = false;
-    has_input_point = false;
+    // green_mode = false;
+    // has_input_point = false;
     signal_draw().connect(sigc::mem_fun(*this, &ShiftDrawingArea::on_draw));
     signal_button_press_event().connect(sigc::mem_fun(*this, &ShiftDrawingArea::on_button_press));
 }
 
-void ShiftDrawingArea::set_green_mode(bool green) {
-    green_mode = green;
-    queue_draw();
-}
+// void ShiftDrawingArea::set_green_mode(bool green) {
+//     green_mode = green;
+//     queue_draw();
+// }
 
 bool ShiftDrawingArea::on_point_set(const Cairo::RefPtr<Cairo::Context>& cr) {
     Gdk::Rectangle allocation = get_allocation();
@@ -30,7 +30,7 @@ bool ShiftDrawingArea::on_point_set(const Cairo::RefPtr<Cairo::Context>& cr) {
 }
 
 void ShiftDrawingArea::set_input_point(int x, int y) {
-    has_input_point = true;
+    // has_input_point = true;
     input_x = x;
     input_y = y;
     queue_draw();
@@ -46,9 +46,9 @@ bool ShiftDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
     const int width = allocation.get_width();
     const int height = allocation.get_height();
 
-    if(has_input_point) {
-        on_point_set(cr);
-    } else {
+    // if(has_input_point) {
+    //     on_point_set(cr);
+    // } else {
         // coordinates for the center of the window
         int xc, yc;
         xc = width / 2;
@@ -64,7 +64,7 @@ bool ShiftDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
         cr->move_to(xc, yc);
         cr->line_to(width, yc);
         cr->stroke();
-    }
+    // }
 
     return true;
 }

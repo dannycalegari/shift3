@@ -1,5 +1,5 @@
-// green.h
-
+#pragma once
+#include <vector>
 // functions
 
 double pow(double d, int i);

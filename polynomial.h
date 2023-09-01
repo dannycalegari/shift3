@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <math.h>
 #include <complex>
 
@@ -13,6 +14,7 @@
 #define PI 		3.1415926535897932384626433
 #define TWOPI	6.283185307179586476925286766559
 extern const cpx I;
+extern cpx P, Q;
 
 // polynomial functions
 

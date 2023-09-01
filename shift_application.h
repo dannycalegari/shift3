@@ -7,8 +7,10 @@
 #include <complex>
 #include "shift_drawing_area.h"
 #include "julia_drawing_area.h"
-
+#include "polynomial.h"
+#include "pq_drawing_area.h"
 // abbreviations
+#include <sigc++/sigc++.h>
 
 #define cpx		std::complex<double>				// complex number
 #define cvec 	std::vector<cpx>					// vector of complex numbers
@@ -25,14 +27,16 @@ public:
 
 protected:
     ShiftApplication();
+    bool on_button_press_p(GdkEventButton* event);
+    bool on_button_press_q(GdkEventButton* event);
 
 private:
     void on_activate() override;
 
     Gtk::Window* window;
     Gtk::Grid* grid;
-    ShiftDrawingArea* p_square;
-    ShiftDrawingArea* q_square;
-    JuliaDrawingArea* julia_square;
-    ShiftDrawingArea* elamination_square;
+    PQDrawingArea* p_area;
+    PQDrawingArea* q_area;
+    JuliaDrawingArea* julia_area;
+    ShiftDrawingArea* elamination_area;
 };
