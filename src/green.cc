@@ -6,9 +6,9 @@ also routine to draw green lines
 
 */
 #pragma once
-#include "polynomial.h"
-#include "green.h"
 
+#include "green.h"
+#include "polynomial.h"
 
 
 double pow(double d, int i){

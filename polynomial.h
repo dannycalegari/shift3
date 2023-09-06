@@ -1,23 +1,20 @@
 #pragma once
 
 #include <array>
-#include <math.h>
 #include <complex>
+#include <math.h>
 
 // abbreviations
-
 #define cpx		std::complex<double>				// complex number
 #define cvec 	std::vector<cpx>					// vector of complex numbers
 
 // global constants
-
 #define PI 		3.1415926535897932384626433
 #define TWOPI	6.283185307179586476925286766559
 extern const cpx I;
 extern cpx P, Q;
 
 // polynomial functions
-
 cpx eval(cpx p, cpx q, cpx z);
 cpx eval_iterate(cpx p, cpx q, cpx z, int n);
 cpx derivative(cpx p, cpx q, cpx z);

@@ -5,14 +5,14 @@
 
 #include "polynomial.h"
 
-class JuliaDrawingArea : public Gtk::DrawingArea {
+class PQDrawingArea : public Gtk::DrawingArea {
 public:
-    JuliaDrawingArea();
+    PQDrawingArea();
+    virtual ~PQDrawingArea();
     void on_p_set();
 
 protected:
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
-    bool on_button_press(GdkEventButton* event);
     bool on_point_set(const Cairo::RefPtr<Cairo::Context>& cr);
 
 private:

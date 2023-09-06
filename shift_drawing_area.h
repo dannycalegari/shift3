@@ -17,5 +17,4 @@ protected:
     int p, q;
     int width, height;
     int input_x, input_y;
-    // HasInputPoint ShiftInput;
 };

@@ -1,5 +1,6 @@
-#pragma once
 #include <vector>
+
+#include "polynomial.h"
 // functions
 
 double pow(double d, int i);

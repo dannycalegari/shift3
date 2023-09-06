@@ -1,22 +1,21 @@
 #pragma once
 
+#include <complex>
 #include <gtkmm.h>
 #include <iostream>
-#include <stdio.h>
 #include <math.h>
-#include <complex>
-#include "shift_drawing_area.h"
+#include <stdio.h>
+
 #include "julia_drawing_area.h"
 #include "polynomial.h"
 #include "pq_drawing_area.h"
-// abbreviations
-#include <sigc++/sigc++.h>
+#include "shift_drawing_area.h"
 
+// abbreviations
 #define cpx		std::complex<double>				// complex number
 #define cvec 	std::vector<cpx>					// vector of complex numbers
 
 // global constants
-
 #define PI 		3.1415926535897932384626433
 #define TWOPI	6.283185307179586476925286766559
 extern const cpx I;
@@ -32,7 +31,6 @@ protected:
 
 private:
     void on_activate() override;
-
     Gtk::Window* window;
     Gtk::Grid* grid;
     PQDrawingArea* p_area;

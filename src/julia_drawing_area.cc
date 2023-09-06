@@ -1,9 +1,10 @@
 /* julia_drawing_area.cc */
 
 #include <iostream>
+
+#include "green.h"
 #include "julia_drawing_area.h"
 #include "polynomial.h"
-#include "green.h"
 
 JuliaDrawingArea::JuliaDrawingArea() {
     add_events(Gdk::BUTTON_PRESS_MASK);
