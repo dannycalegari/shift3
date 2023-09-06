@@ -5,7 +5,7 @@ LDFLAGS = `pkg-config --libs gtkmm-3.0`
 SRCDIR = src
 BUILDDIR = build
 
-SOURCES = main.cc client.cc shift_application.cc shift_drawing_area.cc pq_drawing_area.cc julia_drawing_area.cc polynomial.cc green.cc
+SOURCES = main.cc shift_application.cc shift_drawing_area.cc pq_drawing_area.cc julia_drawing_area.cc polynomial.cc green.cc
 OBJECTS = $(SOURCES:%.cc=$(BUILDDIR)/%.o)
 EXECUTABLE = shift3
 
