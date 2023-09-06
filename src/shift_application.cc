@@ -54,6 +54,9 @@ void ShiftApplication::on_activate() {
 bool ShiftApplication::on_button_press_p(GdkEventButton* event) {
     std::cerr << "P " << P << "ughgh" << std::endl;
     P = static_cast<cpx>(static_cast<double>(event->x), static_cast<double>(event->y));
+// a = <double>(event->x); b = <double>(event->y);
+// P = (a-125.0)/100.0 + (b-125.0)*I/100.0;
+
     std::cerr << "PQ " << static_cast<double>(event->x) << "ughgh" << static_cast<double>(event->y) << std::endl;
     std::cerr << "P " << P << "ughgh" << std::endl;
     julia_area->on_p_set();
