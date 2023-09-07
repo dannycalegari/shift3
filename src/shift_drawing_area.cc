@@ -1,4 +1,6 @@
 #include "shift_drawing_area.h"
+#include "lamination.h"
+#include "polynomial.h"
 
 ShiftDrawingArea::ShiftDrawingArea() {
     add_events(Gdk::BUTTON_PRESS_MASK);
@@ -50,20 +52,44 @@ bool ShiftDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
     //     on_point_set(cr);
     // } else {
         // coordinates for the center of the window
-        int xc, yc;
+        int xc, yc, i, a, b;
+        double xx,yy;
         xc = width / 2;
         yc = height / 2;
+        std::array<leaf,2> C;	// critical leaves
+        C[0].height=1.7;
+        C[0].angle[0]=0.1;
+        C[0].angle[1]=0.1+TWOPI/3.0;
+        
+        C[1].height=1.5;
+        C[1].angle[0]=0.1-1.0*PI;
+        C[1].angle[1]=0.1-1.0*PI+TWOPI/3.0;
+        
+        std::vector<leaf> LL;
+        LL = dynamical_lamination(5, C);
 
-        cr->set_line_width(10.0);
-
-        // draw red lines out from the center of the window
+        cr->set_line_width(1.0);
         cr->set_source_rgb(0.8, 0.0, 0.0);
-        cr->move_to(0, 0);
-        cr->line_to(xc, yc);
-        cr->line_to(0, height);
-        cr->move_to(xc, yc);
-        cr->line_to(width, yc);
-        cr->stroke();
+
+        
+        // draw leaves of lamination
+ 
+        for(i=0;i<LL.size();i++){
+        	a=xc+0.5*xc*cos(LL[i].angle[0])*LL[i].height;
+        	b=yc+0.5*yc*sin(LL[i].angle[0])*LL[i].height;
+        	cr->move_to(a,b);        
+        	a=xc+0.5*xc*cos(LL[i].angle[0]);
+        	b=yc+0.5*yc*sin(LL[i].angle[0]);
+        	cr->line_to(a,b);
+         	a=xc+0.5*xc*cos(LL[i].angle[1]);
+        	b=yc+0.5*yc*sin(LL[i].angle[1]);  
+        	cr->line_to(a,b);
+          	a=xc+0.5*xc*cos(LL[i].angle[1])*LL[i].height;
+        	b=yc+0.5*yc*sin(LL[i].angle[1])*LL[i].height;  
+        	cr->line_to(a,b);       	
+        	cr->stroke();     	
+        };
+
     // }
 
     return true;

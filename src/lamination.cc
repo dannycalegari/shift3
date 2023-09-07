@@ -1,11 +1,9 @@
 /* lamination.cc */
 
 #include "polynomial.h"
+#include "lamination.h"
 
-struct leaf {
-	double height;		// should be > 1
-	double angle[2];	// should be in the interval [-pi,pi]
-};
+
 
 leaf leaf_from_angles(double alpha, double beta, double h){
 	leaf L;
@@ -25,10 +23,10 @@ bool link(leaf l, leaf m){
 	// two leaves link if their chords intersect
 	// equivalently, if the triangles l0,l1,m0 and l0,l1,m1 have opposite orientations
 	cpx z[2],w[2],a,b;
-	z[0]=zee(l,0);
-	z[1]=zee(l,1);
-	w[0]=zee(m,0);
-	w[1]=zee(m,1);
+	z[0]=zee(l,0)/l.height;
+	z[1]=zee(l,1)/l.height;
+	w[0]=zee(m,0)/m.height;
+	w[1]=zee(m,1)/m.height;
 	
 	a=(z[1]-z[0])/(w[0]-z[0]);
 	b=(z[1]-z[0])/(w[1]-z[0]);
@@ -67,9 +65,9 @@ std::vector<leaf> dynamical_lamination(int depth, std::array<leaf,2> C){
 	// sanity check
 	
 	if(link(C[0],C[1])){
-	//	cout << "problem! critical leaves are linked! \n";
+//		std::cout << "problem! critical leaves are linked! \n";
 	} else {
-	//	cout << "critical leaves unlinked. \n";
+//		std::cout << "critical leaves unlinked. \n";
 	};
 	
 	cpx a,b;
@@ -92,12 +90,14 @@ std::vector<leaf> dynamical_lamination(int depth, std::array<leaf,2> C){
 	
 	L.push_back(C[0]);
 	L.push_back(C[1]);
+	M=L;
 	for(i=0;i<depth;i++){
 		for(j=0;j<L.size();j++){
 			// for each element L[j] of L
 			// generate three preimages that don't link C[0] or C[1] and add them to LL	
 
 			N=preimage(L[j]);
+			
 			found_preimage=false;
 			while(found_preimage==false){
 				if(link(N[0],C[0])==false && link(N[0],C[1])==false){
@@ -116,13 +116,13 @@ std::vector<leaf> dynamical_lamination(int depth, std::array<leaf,2> C){
 						LL.push_back(N[2]);
 						found_preimage=true;
 					};
+				} else {			
+					// cyclically permute second angle
+					t=N[2].angle[1];
+					N[2].angle[1]=N[1].angle[1];
+					N[1].angle[1]=N[0].angle[1];
+					N[0].angle[1]=t;
 				};
-			
-				// cyclically permute second angle
-				t=N[2].angle[1];
-				N[2].angle[1]=N[1].angle[1];
-				N[1].angle[1]=N[0].angle[1];
-				N[0].angle[1]=t;
 			};
 			
 		};
@@ -139,6 +139,8 @@ std::vector<leaf> dynamical_lamination(int depth, std::array<leaf,2> C){
 		
 		LL.clear();
 	};
+	
+	return(M);
 	
 };
 
