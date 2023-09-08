@@ -18,4 +18,5 @@ protected:
 private:
     int width, height;
     int input_x, input_y;
+    bool green_mode;
 };
