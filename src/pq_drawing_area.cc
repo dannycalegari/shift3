@@ -31,7 +31,7 @@ bool PQDrawingArea::on_point_set(const Cairo::RefPtr<Cairo::Context>& cr) {
     return true;
 }
 
-void PQDrawingArea::on_p_set() {
+void PQDrawingArea::on_pq_set() {
     queue_draw();
 }
 

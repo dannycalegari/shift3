@@ -23,7 +23,7 @@ void ShiftApplication::on_activate() {
     p_area = new PQDrawingArea();
     q_area = new PQDrawingArea();
     julia_area = new JuliaDrawingArea();
-    elamination_area = new ShiftDrawingArea();
+    elamination_area = new ElaminationDrawingArea();
 
     p_area->set_name("p_area");
     q_area->set_name("q_area");
@@ -47,27 +47,38 @@ void ShiftApplication::on_activate() {
     add_window(*window);
     window->show_all();
     p_area->signal_button_press_event().connect(sigc::mem_fun(*this, &ShiftApplication::on_button_press_p));
-    std::cout << "P " << P << std::endl;
     q_area->signal_button_press_event().connect(sigc::mem_fun(*this, &ShiftApplication::on_button_press_q));
 }
 
 bool ShiftApplication::on_button_press_p(GdkEventButton* event) {
-    std::cerr << "P " << P << "ughgh" << std::endl;
     P = static_cast<cpx>(static_cast<double>(event->x), static_cast<double>(event->y));
-// a = <double>(event->x); b = <double>(event->y);
-// P = (a-125.0)/100.0 + (b-125.0)*I/100.0;
-
-    std::cerr << "PQ " << static_cast<double>(event->x) << "ughgh" << static_cast<double>(event->y) << std::endl;
-    std::cerr << "P " << P << "ughgh" << std::endl;
-    julia_area->on_p_set();
+    a = static_cast<double>(event->x);
+    b = static_cast<double>(event->y);
+    P = (a-125.0)/100.0 + (b-125.0)*I/100.0;
+    p_area->on_pq_set();
+    q_area->on_pq_set();
+    julia_area->on_pq_set();
+    elamination_area->on_pq_set();
     return true;
 }
 
 bool ShiftApplication::on_button_press_q(GdkEventButton* event) {
-    std::cerr << "Q " << Q << "ughgh" << std::endl;
-    P = static_cast<cpx>(static_cast<double>(event->x), static_cast<double>(event->y));
-    std::cerr << "Q " << static_cast<double>(event->x) << "ughgh" << static_cast<double>(event->y) << std::endl;
-    std::cerr << "q " << Q << "ughgh" << std::endl;
-    julia_area->on_p_set();
+    a = static_cast<double>(event->x);
+    b = static_cast<double>(event->y);
+    Q = (a-125.0)/100.0 + (b-125.0)*I/100.0;
+    p_area->on_pq_set();
+    q_area->on_pq_set();
+    julia_area->on_pq_set();
+    elamination_area->on_pq_set();
     return true;
+}
+
+void ShiftApplication::init_app_menu() {
+        auto menu = Gio::Menu::create();
+        menu->append("Green Mode", "app.preferences");
+        menu->append("Quit", "app.quit");
+        this.set_app_menu(menu);
+
+        add_action("green", sigc::mem_fun(*this, &ShiftApplication::set_green));
+        add_action("quit", sigc::mem_fun(*this, &ShiftApplication::quit));
 }

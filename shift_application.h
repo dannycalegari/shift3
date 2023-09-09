@@ -9,7 +9,7 @@
 #include "julia_drawing_area.h"
 #include "polynomial.h"
 #include "pq_drawing_area.h"
-#include "shift_drawing_area.h"
+#include "elamination_drawing_area.h"
 
 // abbreviations
 #define cpx		std::complex<double>				// complex number
@@ -31,10 +31,12 @@ protected:
 
 private:
     void on_activate() override;
+    void init_app_menu();
     Gtk::Window* window;
     Gtk::Grid* grid;
     PQDrawingArea* p_area;
     PQDrawingArea* q_area;
     JuliaDrawingArea* julia_area;
-    ShiftDrawingArea* elamination_area;
+    ElaminationDrawingArea* elamination_area;
+    double a, b;
 };

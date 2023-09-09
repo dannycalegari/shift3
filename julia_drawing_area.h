@@ -8,7 +8,8 @@
 class JuliaDrawingArea : public Gtk::DrawingArea {
 public:
     JuliaDrawingArea();
-    void on_p_set();
+    void on_pq_set();
+    void set_green_mode(bool green);
 
 protected:
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
@@ -16,6 +17,7 @@ protected:
     bool on_point_set(const Cairo::RefPtr<Cairo::Context>& cr);
 
 private:
+    bool green_mode;
     int width, height;
     int input_x, input_y;
 };

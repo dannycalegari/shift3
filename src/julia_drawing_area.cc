@@ -8,8 +8,14 @@
 
 JuliaDrawingArea::JuliaDrawingArea() {
     add_events(Gdk::BUTTON_PRESS_MASK);
+    green_mode = false;
     signal_draw().connect(sigc::mem_fun(*this, &JuliaDrawingArea::on_draw));
     signal_button_press_event().connect(sigc::mem_fun(*this, &JuliaDrawingArea::on_button_press));
+}
+
+void JuliaDrawingArea::set_green_mode(bool green) {
+    green_mode = green;
+    queue_draw();
 }
 
 bool JuliaDrawingArea::on_point_set(const Cairo::RefPtr<Cairo::Context>& cr) {
@@ -28,12 +34,12 @@ bool JuliaDrawingArea::on_point_set(const Cairo::RefPtr<Cairo::Context>& cr) {
     return true;
 }
 
-void JuliaDrawingArea::on_p_set() {
+void JuliaDrawingArea::on_pq_set() {
     queue_draw();
 }
 
 bool JuliaDrawingArea::on_button_press(GdkEventButton* event) {
-    on_p_set();
+    // on_pq_set();
     return true;
 }
 

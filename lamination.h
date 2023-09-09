@@ -1,4 +1,6 @@
 /* lamination.h */
+#pragma once
+#include <vector>
 
 struct leaf {
 	double height;		// should be > 1

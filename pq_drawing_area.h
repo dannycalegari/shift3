@@ -9,7 +9,7 @@ class PQDrawingArea : public Gtk::DrawingArea {
 public:
     PQDrawingArea();
     virtual ~PQDrawingArea();
-    void on_p_set();
+    void on_pq_set();
 
 protected:
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
