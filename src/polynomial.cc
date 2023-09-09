@@ -50,7 +50,7 @@ cpx derivative(cpx p, cpx q, cpx z){
 	return((3.0*z*z)+p);
 };
 
-std::array<cpx, 2> critical_points(cpx p, cpx q, cpx z){
+std::array<cpx, 2> critical_points(cpx p, cpx q){
 	// returns critical points of polynomial; i.e. roots of derivative
 	// returns as an array of cpx numbers
 

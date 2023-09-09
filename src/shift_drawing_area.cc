@@ -69,7 +69,7 @@ bool ShiftDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
         LL = dynamical_lamination(5, C);
 
         cr->set_line_width(1.0);
-        cr->set_source_rgb(0.8, 0.0, 0.0);
+        cr->set_source_rgb(0.0, 0.0, 0.0);
 
         
         // draw leaves of lamination
@@ -81,9 +81,15 @@ bool ShiftDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
         	a=xc+0.5*xc*cos(LL[i].angle[0]);
         	b=yc+0.5*yc*sin(LL[i].angle[0]);
         	cr->line_to(a,b);
+        	
+        	// at the moment: draws straight chord joining points on unit circle.
+        	// to do: draw arc of perpendicular circle joining points on unit circle.
+        	
          	a=xc+0.5*xc*cos(LL[i].angle[1]);
         	b=yc+0.5*yc*sin(LL[i].angle[1]);  
         	cr->line_to(a,b);
+        	
+        	
           	a=xc+0.5*xc*cos(LL[i].angle[1])*LL[i].height;
         	b=yc+0.5*yc*sin(LL[i].angle[1])*LL[i].height;  
         	cr->line_to(a,b);       	

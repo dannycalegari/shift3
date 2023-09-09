@@ -20,4 +20,5 @@ private:
     bool green_mode;
     int width, height;
     int input_x, input_y;
+    bool green_mode;
 };

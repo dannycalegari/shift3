@@ -39,7 +39,8 @@ void JuliaDrawingArea::on_pq_set() {
 }
 
 bool JuliaDrawingArea::on_button_press(GdkEventButton* event) {
-    // on_pq_set();
+    on_p_set();
+    green_mode=1-green_mode;
     return true;
 }
 
@@ -48,29 +49,21 @@ bool JuliaDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
     const int width = allocation.get_width();
     const int height = allocation.get_height();
 
-    int xc, yc, i, j, a, b;
+    int xc, yc, i, j, k, l, a, b;
     double xx,yy,r;
     xc = width / 2;
     yc = height / 2;
 
-    std::vector<std::vector<cpx>> F = Julia_green(P,Q);		// should be Julia_green(p,q)
-    cr->set_line_width(1.0);
-    cr->set_source_rgb(0.5, 0.0, 0.0);
+	if(green_mode==true){
+		// draw gradient flowlines of green function
 
-	for(i=0;i<F.size();i++){
-		xx = F[i][0].real()/2.0;
-		yy = F[i][0].imag()/2.0;
-		r = sqrt(xx*xx + yy*yy);
-		if(r>3.0){
-			xx=xx*3.0/r;
-			yy=yy*3.0/r;
-		};
-		a = xc+xc*xx;
-		b = yc+yc*yy;
-		cr->move_to(a,b);
-		for(j=1;j<F[i].size();j++){
-			xx = F[i][j].real()/2.0;
-			yy = F[i][j].imag()/2.0;
+ 		std::vector<std::vector<cpx>> F = Julia_green(P,Q);		// should be Julia_green(p,q)
+   		cr->set_line_width(1.0);
+    	cr->set_source_rgb(0.5, 0.0, 0.0);
+
+		for(i=0;i<F.size();i++){
+			xx = F[i][0].real()/2.0;
+			yy = F[i][0].imag()/2.0;
 			r = sqrt(xx*xx + yy*yy);
 			if(r>3.0){
 				xx=xx*3.0/r;
@@ -78,9 +71,89 @@ bool JuliaDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 			};
 			a = xc+xc*xx;
 			b = yc+yc*yy;
-			cr->line_to(a,b);
+			cr->move_to(a,b);
+			for(j=1;j<F[i].size();j++){
+				xx = F[i][j].real()/2.0;
+				yy = F[i][j].imag()/2.0;
+				r = sqrt(xx*xx + yy*yy);
+				if(r>3.0){
+					xx=xx*3.0/r;
+					yy=yy*3.0/r;
+				};
+				a = xc+xc*xx;
+				b = yc+yc*yy;
+				cr->line_to(a,b);
+			};
+			cr->stroke();
 		};
-		cr->stroke();
+	} else {
+		// draw julia set pixel by pixel
+
+		// step 1: determine behavior of critical points; do they escape, or do they
+		// approach a periodic orbit?
+		std::array<cpx, 2> C = critical_points(P,Q);
+		std::vector<cpx> attracting_orbits;
+		cpx z;
+		bool converge_to_orbit;
+		attracting_orbits.clear();	// initialize
+	   	cr->set_line_width(1.0);
+		for(i=0;i<2;i++){
+			// for each critical point
+			z=C[i];
+			converge_to_orbit=true;
+			for(j=0;j<400;j++){
+				// iterate z -> f(z) until escape or periodic
+				z=eval(P,Q,z);
+				if(abs(z)>5.0){	// escape
+					converge_to_orbit=false;
+					j=400;
+				};
+			};
+			if(converge_to_orbit){
+				// add value to vector of attracting orbits
+				attracting_orbits.push_back(z);
+				// maybe output period and multiplier?
+			};
+			std::cout << "\n";
+		};
+
+		// step 2: for each point in the drawing area, compute time either to escape
+		// or to approach periodic orbit of critical point.
+
+		for(i=0;i<width;i++){
+			for(j=0;j<height;j++){
+				xx = (double) (i-xc) / (double) (xc);
+				yy = (double) (j-yc) / (double) (yc);
+				z=xx+I*yy;	// initial value
+				z=z*2.0;	// scale for window
+				for(k=0;k<50;k++){
+					z=eval(P,Q,z);
+					if(abs(z)>5.0){ // escape
+						// draw a gray dot at (i,j) which is darker the smaller k is
+					    cr->set_source_rgb(k/50.0, k/50.0, k/50.0);
+						cr->move_to(i,j);
+						cr->line_to(i+1,j);
+						cr->stroke();
+						k=50;
+					} else {
+						for(l=0;l<attracting_orbits.size();l++){
+							if(abs(z-attracting_orbits[l])<0.01){
+								if(l==0){
+									 cr->set_source_rgb(k/50.0, 1.0, 1.0);
+								} else {
+									 cr->set_source_rgb(1.0, k/50.0, 1.0);
+								};
+								// draw a dot at (i,j) in color l which is darker the smaller k is
+								cr->move_to(i,j);
+								cr->line_to(i+1,j);
+								cr->stroke();
+								k=50;
+							};
+						};
+					};
+				};
+			};
+		};
 	};
 
 	return true;

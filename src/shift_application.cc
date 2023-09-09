@@ -51,25 +51,25 @@ void ShiftApplication::on_activate() {
 }
 
 bool ShiftApplication::on_button_press_p(GdkEventButton* event) {
-    P = static_cast<cpx>(static_cast<double>(event->x), static_cast<double>(event->y));
-    a = static_cast<double>(event->x);
-    b = static_cast<double>(event->y);
-    P = (a-125.0)/100.0 + (b-125.0)*I/100.0;
-    p_area->on_pq_set();
-    q_area->on_pq_set();
-    julia_area->on_pq_set();
-    elamination_area->on_pq_set();
+    std::cerr << "old P " << P << " ; old Q " << Q << std::endl;
+ //   P = static_cast<cpx>(static_cast<double>(event->x), static_cast<double>(event->y));
+    double a,b;
+	a = static_cast<double>(event->x);
+	b = static_cast<double>(event->y);
+	P = (a-125.0)/100.0 + (b-125.0)*I/100.0;
+    std::cerr << "new P " << P << " ; old Q " << Q << std::endl;
+    julia_area->on_p_set();
     return true;
 }
 
 bool ShiftApplication::on_button_press_q(GdkEventButton* event) {
-    a = static_cast<double>(event->x);
-    b = static_cast<double>(event->y);
-    Q = (a-125.0)/100.0 + (b-125.0)*I/100.0;
-    p_area->on_pq_set();
-    q_area->on_pq_set();
-    julia_area->on_pq_set();
-    elamination_area->on_pq_set();
+    std::cerr << "old P " << P << " ; old Q " << Q << std::endl;
+    double a,b;
+	a = static_cast<double>(event->x);
+	b = static_cast<double>(event->y);
+	Q = (a-125.0)/100.0 + (b-125.0)*I/100.0;
+    std::cerr << "old P " << P << " ; new Q " << Q << std::endl;
+    julia_area->on_p_set();
     return true;
 }
 
