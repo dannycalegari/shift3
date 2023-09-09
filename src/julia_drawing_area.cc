@@ -95,18 +95,20 @@ bool JuliaDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 			// for each critical point
 			z=C[i];
 			converge_to_orbit=true;
-			for(j=0;j<20;j++){
+			for(j=0;j<400;j++){
 				// iterate z -> f(z) until escape or periodic
 				z=eval(P,Q,z);
 				if(abs(z)>5.0){	// escape
 					converge_to_orbit=false;
-					j=20;
+					j=400;
 				};
 			};
 			if(converge_to_orbit){
 				// add value to vector of attracting orbits
 				attracting_orbits.push_back(z);
+				// maybe output period and multiplier?
 			};
+			std::cout << "\n";
 		};
 		
 		// step 2: for each point in the drawing area, compute time either to escape
@@ -122,8 +124,7 @@ bool JuliaDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 					z=eval(P,Q,z);
 					if(abs(z)>5.0){ // escape
 						// draw a gray dot at (i,j) which is darker the smaller k is
-					    cr->set_source_rgb(k/20.0, k/20.0, k/20.0);	
-			//		    std::cout << k/20.0 << " dot\n";
+					    cr->set_source_rgb(k/50.0, k/50.0, k/50.0);	
 						cr->move_to(i,j);
 						cr->line_to(i+1,j);
 						cr->stroke();
@@ -132,9 +133,9 @@ bool JuliaDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 						for(l=0;l<attracting_orbits.size();l++){
 							if(abs(z-attracting_orbits[l])<0.01){
 								if(l==0){
-									 cr->set_source_rgb(k/20.0, 1.0, 1.0);	
+									 cr->set_source_rgb(k/50.0, 1.0, 1.0);	
 								} else {
-									 cr->set_source_rgb(1.0, k/20.0, 1.0);	
+									 cr->set_source_rgb(1.0, k/50.0, 1.0);	
 								};
 								// draw a dot at (i,j) in color l which is darker the smaller k is
 								cr->move_to(i,j);
