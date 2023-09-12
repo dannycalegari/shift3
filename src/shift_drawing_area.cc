@@ -73,20 +73,13 @@ bool ShiftDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 
         
         // draw leaves of lamination
- 
+        
+        cr->arc(xc, yc, 0.5*xc,0.0, 2.0*M_PI);	// set clip region
+        cr->clip();								// to unit circle        
+     
         for(i=0;i<LL.size();i++){
-        	a=xc+0.5*xc*cos(LL[i].angle[0])*LL[i].height;
-        	b=yc+0.5*yc*sin(LL[i].angle[0])*LL[i].height;
-        	cr->move_to(a,b);        
-        	a=xc+0.5*xc*cos(LL[i].angle[0]);
-        	b=yc+0.5*yc*sin(LL[i].angle[0]);
-        	cr->line_to(a,b);
-  			cr->stroke();
-  			      	
-        	// at the moment: draws straight chord joining points on unit circle.
-        	// to do: draw arc of perpendicular circle joining points on unit circle.
-        	
-        	x0 = cos(LL[i].angle[0]);
+        	// draw circular chords as circles clipped to the unit circle
+       		x0 = cos(LL[i].angle[0]);
         	y0 = sin(LL[i].angle[0]);
         	xx = 0.5*(cos(LL[i].angle[0])+cos(LL[i].angle[1]));
             yy = 0.5*(sin(LL[i].angle[0])+sin(LL[i].angle[1]));
@@ -98,22 +91,33 @@ bool ShiftDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
            		a = xc + 0.5*xc*xx;
             	b = yc + 0.5*yc*yy;
             	c = 0.5*xc*rr;
+
             	cr->arc(a,b,c,0.0, 2.0 * M_PI);
+            	cr->stroke();
             } else {
                 a=xc+0.5*xc*cos(LL[i].angle[0]);
         		b=yc+0.5*yc*sin(LL[i].angle[0]);    	
             	cr->move_to(a,b);
                 a=xc+0.5*xc*cos(LL[i].angle[1]);
         		b=yc+0.5*yc*sin(LL[i].angle[1]);    	
-            	cr->line_to(a,b);            	
+            	cr->line_to(a,b);      
+            	cr->stroke();      	
             };
-       //     cr->stroke
-    	
-        	/*
-         	a=xc+0.5*xc*cos(LL[i].angle[1]);
-        	b=yc+0.5*yc*sin(LL[i].angle[1]);  
+        };
+ 		cr->reset_clip();
+        cr->arc(xc, yc, 0.5*xc,0.0, 2.0*M_PI); // unit circle
+		cr->stroke();
+
+        for(i=0;i<LL.size();i++){
+        	// draw peripheral segments
+        	a=xc+0.5*xc*cos(LL[i].angle[0])*LL[i].height;
+        	b=yc+0.5*yc*sin(LL[i].angle[0])*LL[i].height;
+        	cr->move_to(a,b);        
+        	a=xc+0.5*xc*cos(LL[i].angle[0]);
+        	b=yc+0.5*yc*sin(LL[i].angle[0]);
         	cr->line_to(a,b);
-        	*/
+  			cr->stroke();
+  		
            	a=xc+0.5*xc*cos(LL[i].angle[1]);
         	b=yc+0.5*yc*sin(LL[i].angle[1]);   
         	cr->move_to(a,b);      	
@@ -122,6 +126,7 @@ bool ShiftDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
         	cr->line_to(a,b);       	
         	cr->stroke();     	
         };
+
 
     // }
 
