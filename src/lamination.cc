@@ -1,4 +1,5 @@
 /* lamination.cc */
+#include <iostream>
 
 #include "polynomial.h"
 #include "lamination.h"
@@ -62,13 +63,7 @@ std::array<leaf,3> preimage(leaf L){
 std::vector<leaf> dynamical_lamination(int depth, std::array<leaf,2> C){
 	// given two critical leaves C, generates the associated dynamical elamination
 	
-	// sanity check
-	
-	if(link(C[0],C[1])){
-//		std::cout << "problem! critical leaves are linked! \n";
-	} else {
-//		std::cout << "critical leaves unlinked. \n";
-	};
+
 	
 	cpx a,b;
 	a = zee(C[0],0)/zee(C[0],1);
@@ -85,6 +80,15 @@ std::vector<leaf> dynamical_lamination(int depth, std::array<leaf,2> C){
 	L.clear();
 	LL.clear();
 	M.clear();
+	
+	// sanity check
+	
+	if(link(C[0],C[1])){
+		std::cout << "problem! critical leaves are linked! \n";
+		return(M);
+	} else {
+		std::cout << "critical leaves unlinked. \n";
+	};
 	
 	// put critical leaves on list
 	

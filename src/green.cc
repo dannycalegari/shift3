@@ -5,6 +5,7 @@ bottcher coordinates for cubic depressed polynomial
 also routine to draw green lines
 
 */
+#include <iostream>
 
 #include "green.h"
 #include "polynomial.h"
@@ -18,6 +19,93 @@ double pow(double d, int i){
 	} else {
 		return(d*pow(d,i-1));
 	};
+};
+
+std::vector<cpx> radial_segment(cpx z, double R, int i){
+	// returns radial segment of i+1 points from z to zR/|z|
+	std::vector<cpx> L,LL;
+	int j;
+	double T,jj,ii;
+	
+	L.clear();
+	T=log(R);
+	for(j=0;j<i+1;j++){
+		jj = (double) j;
+		ii = (double) i;
+		L.push_back(z*exp(T*jj/ii));
+	};
+	return(L);
+};
+
+cpx better_bottcher(cpx p, cpx q, cpx z){
+	// warning: this is fast when it works, but it is very buggy
+	// and infrequently works, or is numerically inaccurate for no apparent reason!
+
+	double maxsize, T, b_abs, b_arg;
+	bool escape;
+	int i, j, escape_iterate, max_iterate;
+	std::vector<cpx> w,L,LL;
+	cpx u;
+	
+	maxsize=1000.0;
+	max_iterate=20;
+	escape=false;
+	
+	w.clear();
+	w.push_back(z);
+	
+//	std::cout << "computing itinerary; begins at " << z << "\n";
+	for(i=0;i<max_iterate;i++){
+		w.push_back(eval(p,q,w[i]));
+//		std::cout << "iterate " << i+1 << " is " << w[i+1] << "\n";
+		if(abs(w[i+1])>maxsize){
+			T=log(abs(w[i+1]));
+			b_abs=exp(T/pow(3.0,i+1));
+			escape=true;
+			escape_iterate=i;	// not i+1;
+			i=max_iterate;
+		};
+	};
+	if(escape==false){
+		return(1.0);
+	};
+	
+	// determine argument b_arg of bottcher coordinate
+	
+	
+//	std::cout << "constructing radial segment " << escape_iterate+1 << "\n";
+	L = radial_segment(w[escape_iterate], 1000.0, 10);
+//	for(i=0;i<L.size();i++){
+//		std::cout << L[i] << " ";
+//	};
+//	std::cout << "\n";
+	
+	for(i=escape_iterate-1;i>-1;i--){
+//		std::cout << "constructing radial segment " << i+1 << "\n";
+		LL.clear();
+		LL.push_back(w[i]);
+		for(j=1;j<L.size();j++){
+			u=newton_preimage(p,q,L[j],LL[j-1]);
+			LL.push_back(u);
+//			std::cout << u << " ";
+		};
+		L = radial_segment(LL[LL.size()-1], 1000.0, 10);
+//		for(j=0;j<L.size();j++){
+//			std::cout << L[j] << " ";
+//		};	
+//		std::cout << "\n";
+		LL.insert(LL.end(),L.begin(),L.end());
+//		for(j=0;j<LL.size();j++){
+//			std::cout << LL[j] << " ";
+//		};
+//		std::cout << "\n";
+		L=LL;
+	};
+	
+	b_arg=arg(L[L.size()-1]);
+	std::cout << "bottcher coordinate is " << b_abs*exp(I*b_arg) << "\n";
+	return(b_abs*exp(I*b_arg));
+	
 };
 
 
@@ -85,6 +173,7 @@ cpx bottcher(cpx p, cpx q, cpx z){
 	};
 
 	b_arg=arg(zz);
+	std::cout << "bottcher coordinate is " << b_abs*exp(I*b_arg) << "\n";
 
 	w=b_abs*exp(I*b_arg);
 	return(w);
@@ -310,11 +399,14 @@ std::array<leaf,2> critical_bottcher_coordinates(cpx p, cpx q){
 			L.angle[0]=alpha;
 		
 			w=z-yy; // opposite perturbation of critical point
-			alpha=arg(bottcher(p,q,w));
+			w=bottcher(p,q,w);
+			alpha=arg(w);
 			L.angle[1]=alpha;
+			
+			std::cout << "two angles are " << L.angle[0] << " and " << L.angle[1] << " with difference " << L.angle[0]-L.angle[1] << "\n";
 
 //		cout << "critical point " << i << " bottcher coords abs = " << green(P,z) << " arg = " << angle_list[0] << " , " << angle_list[1] << "\n";
-			L.height = abs(bottcher(p,q,w));
+			L.height = abs(w);
 		
 			CL[i]=L;
 		};
