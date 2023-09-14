@@ -63,7 +63,7 @@ bool PQDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
         		for(k=0;k<2;k++){
         			z = C[k];	// initial value
         			converge_to_orbit=true;
-        			for(l=0;l<20;l++){
+        			for(l=0;l<50;l++){
         				if(p_type==true){
         					z = eval(w,Q,z);
         				} else {
@@ -73,27 +73,22 @@ bool PQDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
         					ll = (double) l;
 							converge_to_orbit=false;
 							if(k==0){
-								a = 0.8*ll/20.0;
-								b = 0.3*ll/20.0;
-								c = 0.5*ll/20.0;
+								a = 0.8*ll/50.0;
+								b = 0.3*ll/50.0;
+								c = 0.5*ll/50.0;
 							} else {
-								a = a + 0.2*ll/20.0;
-								b = b + 0.7*ll/20.0;
-								c = c + 0.5*ll/20.0;
+								a = a + 0.2*ll/50.0;
+								b = b + 0.7*ll/50.0;
+								c = c + 0.5*ll/50.0;
 							};
-							l=20;
+							l=50;
 						};
         			};
         			if(converge_to_orbit==true){
-        				if(k==0){
-	      					a = 0.8;
-    	   					b = 0.3;
-        					c = 0.5;
-        				} else {
-        					a = a + 0.2;
-        					b = b + 0.7;
-        					c = c + 0.5;
-        				};
+        				a = 1.0;
+        				b = 1.0;
+        				c = 1.0;
+        				k=2;
         			};
         		};
         		cr->set_source_rgb(a,b,c);

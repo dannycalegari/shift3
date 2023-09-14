@@ -64,6 +64,7 @@ bool ShiftApplication::on_button_press_p(GdkEventButton* event) {
     julia_area->on_p_set();
     p_area->on_p_set();
     q_area->on_p_set();
+    elamination_area->on_p_set();
     return true;
 }
 
@@ -77,5 +78,6 @@ bool ShiftApplication::on_button_press_q(GdkEventButton* event) {
     julia_area->on_p_set();
     p_area->on_p_set();
     q_area->on_p_set();
+    elamination_area->on_p_set();
     return true;
 }

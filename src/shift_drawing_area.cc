@@ -1,6 +1,7 @@
 #include "shift_drawing_area.h"
 #include "lamination.h"
 #include "polynomial.h"
+#include "green.h"
 
 ShiftDrawingArea::ShiftDrawingArea() {
     add_events(Gdk::BUTTON_PRESS_MASK);
@@ -43,6 +44,10 @@ bool ShiftDrawingArea::on_button_press(GdkEventButton* event) {
     return true;
 }
 
+void ShiftDrawingArea::on_p_set() {
+    queue_draw();
+}
+
 bool ShiftDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
     Gtk::Allocation allocation = get_allocation();
     const int width = allocation.get_width();
@@ -57,6 +62,16 @@ bool ShiftDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
         xc = width / 2;
         yc = height / 2;
         std::array<leaf,2> C;	// critical leaves
+        C = critical_bottcher_coordinates(P,Q);
+        
+        if(C[0].height==1.0 || C[1].height==1.0){
+        	cr->set_line_width(1.0);
+        	cr->set_source_rgb(0.0, 0.0, 0.0);
+            cr->arc(xc, yc, 0.5*xc,0.0, 2.0*M_PI); // unit circle
+			cr->stroke();    	
+        } else {
+        
+        /*
         C[0].height=1.7;
         C[0].angle[0]=0.1;
         C[0].angle[1]=0.1+TWOPI/3.0;
@@ -64,6 +79,7 @@ bool ShiftDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
         C[1].height=1.5;
         C[1].angle[0]=0.1-1.0*PI;
         C[1].angle[1]=0.1-1.0*PI+TWOPI/3.0;
+        */
         
         std::vector<leaf> LL;
         LL = dynamical_lamination(5, C);
@@ -127,7 +143,7 @@ bool ShiftDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
         	cr->stroke();     	
         };
 
-
+	};
     // }
 
     return true;

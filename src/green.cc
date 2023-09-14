@@ -5,10 +5,10 @@ bottcher coordinates for cubic depressed polynomial
 also routine to draw green lines
 
 */
-#pragma once
 
 #include "green.h"
 #include "polynomial.h"
+#include "lamination.h"
 
 
 double pow(double d, int i){
@@ -248,28 +248,25 @@ std::vector<std::vector<cpx>> Julia_green(cpx p, cpx q){
 	// TO DO
 };
 
-/*
-
-vector<leaf> critical_bottcher_coordinates(polynomial P){
-	vector<leaf> CL;
+std::array<leaf,2> critical_bottcher_coordinates(cpx p, cpx q){
+	std::array<leaf,2> CL;
 	leaf L;
-	CL.clear();
+	
+	std::array<cpx,2> C = critical_points(p,q);
 
-	cvec C=critical_points(P);
+
 	int i,j,d;
 	cpx z,w,bw,bww,wd,bwd,y,yy;
 	cpx sec_der;
 	double alpha;
-	vector<double> angle_list;
 	bool escaped;
 	int maxiter;
 	double maxsize;
 
 
-	for(i=0;i<C.size();i++){
+	for(i=0;i<2;i++){
 		z=C[i];
-		angle_list.clear();
-		w=eval(P,z);	// critical value
+		w=eval(p,q,z);	// critical value
 		escaped=false;
 
 		maxiter=255;
@@ -277,7 +274,7 @@ vector<leaf> critical_bottcher_coordinates(polynomial P){
 
 
 		for(j=0;j<maxiter;j++){
-			w=eval(P,w);
+			w=eval(p,q,w);
 			if(abs(w)>maxsize){
 	//		cout << "f^" << i+1 << "(c)=" << w << "\n";
 				d=j+1;
@@ -285,52 +282,43 @@ vector<leaf> critical_bottcher_coordinates(polynomial P){
 				j=maxiter;
 			};
 		};
-		w=eval(P,z); // reset critical value
-		bw=eval_iterate(P,w,d);
-		bww=eval_iterate(P,w+0.0001,d);
-		bwd=(bww-bw)/0.0001;
-		y=abs(bw)*1.001*exp(I*arg(bw));
-		wd=(y-bw)/bwd;	// direction to perturb w to make f^d(w) increase radially
+		if(escaped==false){
+			L.height=1.0;
+			L.angle[0]=0.0;
+			L.angle[1]=TWOPI/3.0;
+			CL[i]=L;
+		} else {
+			w=eval(p,q,z); // reset critical value
+			bw=eval_iterate(p,q,w,d);
+			bww=eval_iterate(p,q,w+0.0001,d);
+			bwd=(bww-bw)/0.0001;
+			y=abs(bw)*1.001*exp(I*arg(bw));
+			wd=(y-bw)/bwd;	// direction to perturb w to make f^d(w) increase radially
 
 //		cout << "w = " << w << "\n";
 //		cout << "wd = " << wd << "\n";
 
-		sec_der=eval(derivative(derivative(P)),z);	// f''(z)
+		// f'(z) = 3z^2 + p; f''(z) = 6z
+			sec_der=6.0*z; 	// f''(z)
 
-		yy=sqrt(wd*2.0/sec_der);
+			yy=sqrt(wd*2.0/sec_der);
 //		cout << "yy = " << yy << "\n";
 //		cout << "z+yy = " << z+yy << " f(c+yy) = " << eval(P,z+yy) << " versus " << "w+wd = " << w+wd << "\n";
 
-		w=z+yy;	// perturbation of critical point
-		alpha=arg(bottcher_coordinate(P,w));
-		angle_list.push_back(alpha);
-		w=z-yy; // opposite perturbation of critical point
-		alpha=arg(bottcher_coordinate(P,w));
-		angle_list.push_back(alpha);
+			w=z+yy;	// perturbation of critical point
+			alpha=arg(bottcher(p,q,w));
+			L.angle[0]=alpha;
+		
+			w=z-yy; // opposite perturbation of critical point
+			alpha=arg(bottcher(p,q,w));
+			L.angle[1]=alpha;
 
 //		cout << "critical point " << i << " bottcher coords abs = " << green(P,z) << " arg = " << angle_list[0] << " , " << angle_list[1] << "\n";
-		L.height = green(P,z);
-		L.angle = angle_list[0]/TWOPI;
-		L.offset = (angle_list[1]-angle_list[0])/TWOPI;
-
-		if(L.angle<0.0){
-			L.angle=L.angle+1.0;
+			L.height = abs(bottcher(p,q,w));
+		
+			CL[i]=L;
 		};
-		if(L.offset<0.0){
-			L.offset=L.offset+1.0;
-		};
-		if(L.offset>0.5){
-			L.angle=L.angle+L.offset;
-			L.offset=1.0-L.offset;
-		};
-		L.offset=1.0/3.0;
-		if(L.angle>1.0){
-			L.angle=L.angle-1.0;
-		};
-//		cout << "critical point " << i << " height = " << L.height << " angle = " << L.angle << " offset = " << L.offset << "\n";
-		CL.push_back(L);
 	};
 	return(CL);
 };
 
-*/
