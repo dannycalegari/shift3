@@ -3,21 +3,18 @@
 #include <cairomm/context.h>
 #include <gtkmm.h>
 
-#include "polynomial.h"
-
-class JuliaDrawingArea : public Gtk::DrawingArea {
+class ShiftDrawingArea : public Gtk::DrawingArea {
 public:
-    JuliaDrawingArea();
-    void on_pq_set();
-    void set_green_mode(bool green);
+    ShiftDrawingArea();
+    void set_input_point(int x, int y);
+	void on_p_set();
 
 protected:
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
+    void on_draw_requested(const Glib::ustring& area_name, int x, int y);
     bool on_button_press(GdkEventButton* event);
     bool on_point_set(const Cairo::RefPtr<Cairo::Context>& cr);
-
-private:
-    bool green_mode;
+    int p, q;
     int width, height;
     int input_x, input_y;
 };

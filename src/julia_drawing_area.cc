@@ -39,7 +39,7 @@ void JuliaDrawingArea::on_pq_set() {
 }
 
 bool JuliaDrawingArea::on_button_press(GdkEventButton* event) {
-    on_p_set();
+    on_pq_set();
     green_mode=1-green_mode;
     return true;
 }
@@ -54,7 +54,7 @@ bool JuliaDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
     xc = width / 2;
     yc = height / 2;
 
-	if(green_mode==true){
+	if(green_mode==true) {
 		// draw gradient flowlines of green function
 
  		std::vector<std::vector<cpx>> F = Julia_green(P,Q);		// should be Julia_green(p,q)
@@ -110,11 +110,11 @@ bool JuliaDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 				};
 			};
 			if(converge_to_orbit){
+				std::cout << "critical point " << i << " converged to " << z << "\n";
 				// add value to vector of attracting orbits
 				attracting_orbits.push_back(z);
 				// maybe output period and multiplier?
 			};
-			std::cout << "\n";
 		};
 
 		// step 2: for each point in the drawing area, compute time either to escape
@@ -126,6 +126,7 @@ bool JuliaDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 				yy = (double) (j-yc) / (double) (yc);
 				z=xx+I*yy;	// initial value
 				z=z*2.0;	// scale for window
+				converge_to_orbit=false;
 				for(k=0;k<50;k++){
 					z=eval(P,Q,z);
 					if(abs(z)>5.0){ // escape
@@ -138,6 +139,7 @@ bool JuliaDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 					} else {
 						for(l=0;l<attracting_orbits.size();l++){
 							if(abs(z-attracting_orbits[l])<0.01){
+								converge_to_orbit=true;
 								if(l==0){
 									 cr->set_source_rgb(k/50.0, 1.0, 1.0);
 								} else {
@@ -151,6 +153,9 @@ bool JuliaDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 							};
 						};
 					};
+				};
+				if(converge_to_orbit==false){
+		//			std::cout << "didn't converge: " << xx+I*yy << " goes to " << z << "\n";
 				};
 			};
 		};

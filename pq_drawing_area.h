@@ -10,6 +10,7 @@ public:
     PQDrawingArea();
     virtual ~PQDrawingArea();
     void on_pq_set();
+    bool p_type;
 
 protected:
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;

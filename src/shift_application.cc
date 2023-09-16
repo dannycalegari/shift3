@@ -22,6 +22,8 @@ void ShiftApplication::on_activate() {
     window = new Gtk::Window();
     p_area = new PQDrawingArea();
     q_area = new PQDrawingArea();
+    p_area->p_type = true;
+    q_area->p_type = false;
     julia_area = new JuliaDrawingArea();
     elamination_area = new ElaminationDrawingArea();
 
@@ -52,13 +54,15 @@ void ShiftApplication::on_activate() {
 
 bool ShiftApplication::on_button_press_p(GdkEventButton* event) {
     std::cerr << "old P " << P << " ; old Q " << Q << std::endl;
- //   P = static_cast<cpx>(static_cast<double>(event->x), static_cast<double>(event->y));
     double a,b;
 	a = static_cast<double>(event->x);
 	b = static_cast<double>(event->y);
-	P = (a-125.0)/100.0 + (b-125.0)*I/100.0;
+	P = (a-125.0)/62.5 + (b-125.0)*I/62.5;
     std::cerr << "new P " << P << " ; old Q " << Q << std::endl;
-    julia_area->on_p_set();
+    julia_area->on_pq_set();
+    p_area->on_pq_set();
+    q_area->on_pq_set();
+    elamination_area->on_pq_set();
     return true;
 }
 
@@ -67,18 +71,11 @@ bool ShiftApplication::on_button_press_q(GdkEventButton* event) {
     double a,b;
 	a = static_cast<double>(event->x);
 	b = static_cast<double>(event->y);
-	Q = (a-125.0)/100.0 + (b-125.0)*I/100.0;
+	Q = (a-125.0)/62.5 + (b-125.0)*I/62.5;
     std::cerr << "old P " << P << " ; new Q " << Q << std::endl;
-    julia_area->on_p_set();
+    julia_area->on_pq_set();
+    p_area->on_pq_set();
+    q_area->on_pq_set();
+    elamination_area->on_pq_set();
     return true;
-}
-
-void ShiftApplication::init_app_menu() {
-        auto menu = Gio::Menu::create();
-        menu->append("Green Mode", "app.preferences");
-        menu->append("Quit", "app.quit");
-        this.set_app_menu(menu);
-
-        add_action("green", sigc::mem_fun(*this, &ShiftApplication::set_green));
-        add_action("quit", sigc::mem_fun(*this, &ShiftApplication::quit));
 }

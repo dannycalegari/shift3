@@ -39,19 +39,65 @@ bool PQDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
     Gtk::Allocation allocation = get_allocation();
     const int width = allocation.get_width();
     const int height = allocation.get_height();
-        int xc, yc;
+        int xc, yc, i, j, k, l;
+        double xx, yy, ll, a, b, c;
+        cpx w, z;
+		std::array<cpx, 2> C; 
+		bool converge_to_orbit;
+
         xc = width / 2;
         yc = height / 2;
-        cr->set_line_width(10.0);
+        cr->set_line_width(1.0);
+        
+        for(i=0;i<width;i++){
+        	for(j=0;j<height;j++){
+				xx = (double) (i-xc) / (double) (xc);
+				yy = (double) (j-yc) / (double) (yc);
+				w=xx+I*yy;	// initial value
+				w=w*2.0;	// scale for window
+				if(p_type==true){
+	        		C = critical_points(w,Q);
+	        	} else {
+	        		C = critical_points(P,w);
+	        	};
+        		for(k=0;k<2;k++){
+        			z = C[k];	// initial value
+        			converge_to_orbit=true;
+        			for(l=0;l<50;l++){
+        				if(p_type==true){
+        					z = eval(w,Q,z);
+        				} else {
+        					z = eval(P,w,z);
+        				};
+        				if(abs(z)>5.0){	// escape
+        					ll = (double) l;
+							converge_to_orbit=false;
+							if(k==0){
+								a = 0.8*ll/50.0;
+								b = 0.3*ll/50.0;
+								c = 0.5*ll/50.0;
+							} else {
+								a = a + 0.2*ll/50.0;
+								b = b + 0.7*ll/50.0;
+								c = c + 0.5*ll/50.0;
+							};
+							l=50;
+						};
+        			};
+        			if(converge_to_orbit==true){
+        				a = 1.0;
+        				b = 1.0;
+        				c = 1.0;
+        				k=2;
+        			};
+        		};
+        		cr->set_source_rgb(a,b,c);
+        		cr->move_to(i,j);
+    			cr->line_to(i+1,j);
+    			cr->stroke();
+        	};
+        };
 
-        // draw red lines out from the center of the window
-        cr->set_source_rgb(0.8, 0.0, 0.0);
-        cr->move_to(0, 0);
-        cr->line_to(xc, yc);
-        cr->line_to(0, height);
-        cr->move_to(xc, yc);
-        cr->line_to(width, yc);
-        cr->stroke();
 
     return true;
 }
