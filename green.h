@@ -6,6 +6,8 @@
 // functions
 
 double pow(double d, int i);
+cpx better_bottcher(cpx p, cpx q, cpx z);
 cpx bottcher(cpx p, cpx q, cpx z);
+cpx bottcher2(cpx p, cpx q, cpx z);
 std::vector<std::vector<cpx>> Julia_green(cpx p, cpx q);
 std::array<leaf,2> critical_bottcher_coordinates(cpx p, cpx q);

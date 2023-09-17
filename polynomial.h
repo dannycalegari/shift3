@@ -18,10 +18,11 @@ extern cpx P, Q;
 cpx eval(cpx p, cpx q, cpx z);
 cpx eval_iterate(cpx p, cpx q, cpx z, int n);
 cpx derivative(cpx p, cpx q, cpx z);
+cpx deriv_iterate(cpx p, cpx q, cpx z, int n);
 std::array<cpx, 2> critical_points(cpx p, cpx q);
 std::array<cpx, 3> roots(cpx p, cpx q);
 cpx newton_root(cpx p, cpx q, cpx z);
 std::array<cpx, 3> preimage(cpx p, cpx q, cpx z);
 cpx newton_preimage(cpx p, cpx q, cpx z, cpx ww);
-
+cpx newton_preimage_iterate(cpx p, cpx q, cpx z, cpx ww, int n);
 
