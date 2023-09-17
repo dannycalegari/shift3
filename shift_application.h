@@ -10,6 +10,7 @@
 #include "polynomial.h"
 #include "pq_drawing_area.h"
 #include "shift_drawing_area.h"
+#include "text_drawing_area.h"
 
 // abbreviations
 #define cpx		std::complex<double>				// complex number
@@ -37,4 +38,5 @@ private:
     PQDrawingArea* q_area;
     JuliaDrawingArea* julia_area;
     ShiftDrawingArea* elamination_area;
+    TextDrawingArea* text_area;
 };
