@@ -74,7 +74,7 @@ cpx better_bottcher(cpx p, cpx q, cpx z){
 	
 	
 //	std::cout << "constructing radial segment " << escape_iterate+1 << "\n";
-	L = radial_segment(w[escape_iterate], 1000.0, 10);
+	L = radial_segment(w[escape_iterate], 10000.0, 1000);
 //	for(i=0;i<L.size();i++){
 //		std::cout << L[i] << " ";
 //	};
@@ -89,7 +89,7 @@ cpx better_bottcher(cpx p, cpx q, cpx z){
 			LL.push_back(u);
 //			std::cout << u << " ";
 		};
-		L = radial_segment(LL[LL.size()-1], 1000.0, 10);
+		L = radial_segment(LL[LL.size()-1], 10000.0, 1000);
 //		for(j=0;j<L.size();j++){
 //			std::cout << L[j] << " ";
 //		};	
@@ -154,8 +154,12 @@ cpx bottcher(cpx p, cpx q, cpx z){
 	while(abs(zz)<maxsize){
 
 		w=eval_iterate(p,q,zz,escape_iterate);
-		ww=eval_iterate(p,q,zz+0.0001,escape_iterate);
-		wd=(ww-w)/0.0001;	// approximate derivative of w(z)
+//		ww=eval_iterate(p,q,zz+0.0001,escape_iterate);
+		
+		wd=deriv_iterate(p,q,zz,escape_iterate);
+//		std::cout << "actual derivative " << wd << " ";
+//		wd=(ww-w)/0.0001;
+//		std::cout << "approx derivative " << wd << " ";
 
 		/* head in the direction of y
 			which has abs(w')=abs(w)*1.01 and
@@ -169,6 +173,72 @@ cpx bottcher(cpx p, cpx q, cpx z){
 			escape_iterate=escape_iterate-1;
 			w=eval_iterate(p,q,zz,escape_iterate);
 			alpha=arg(w);
+		};
+	};
+
+	b_arg=arg(zz);
+	std::cout << "bottcher coordinate is " << b_abs*exp(I*b_arg) << "\n";
+
+	w=b_abs*exp(I*b_arg);
+	return(w);
+};
+
+cpx bottcher2(cpx p, cpx q, cpx z){
+	/* returns bottcher coordinate of z for the polynomial
+	z^3 + z*p + q
+
+	Well-defined iff z is in the attracting basin of infinity;
+	otherwise by default return 1.0;
+	*/
+
+	int i, escape_iterate, max_iterate;
+	cpx w,b;
+	double T,b_abs,b_arg, maxsize;
+	bool escapes;
+
+	maxsize=1000.0;
+	max_iterate=20;
+	w=z;
+	escapes=false;
+
+	// determine absolute value b_abs of bottcher coordinate
+
+	for(i=0;i<max_iterate;i++){
+		w=eval(p,q,w);
+		if(abs(w)>maxsize){
+			T=log(abs(w));
+			b_abs=exp(T/pow(3.0,i+1));
+			escapes=true;
+			escape_iterate=i+1;
+			i=max_iterate;	// escape loop; is there a more elegant way?
+		};
+	};
+	if(escapes==false){
+		return(1.0);
+	};
+
+	// determine argument b_arg of bottcher coordinate
+
+	double alpha;
+	cpx ww,wd,zz,y;
+	
+	// zz is initialized to z. 
+	// the method will be to move zz iteratively in such a way that
+	// f^n(zz) moves radially outward, where n is the biggest iterate
+	// such that abs(f^n(zz))<maxsize*maxsize.
+	// when abs(zz)>maxsize we return the argument of zz.
+
+
+	zz=z;
+	w=eval_iterate(p,q,zz,escape_iterate);	// w=f^escape_iterate(zz);
+	while(abs(zz)<maxsize){
+		w=w*1.01;	// move w radially outwards
+		// using newton's method, zz is adjusted so that f^escape_iterate(zz)=y
+		zz=newton_preimage_iterate(p,q,w,zz,escape_iterate);
+
+		if(abs(w)>maxsize*maxsize){	// if w is too big
+			escape_iterate=escape_iterate-1;	// decrement escape_iterate
+			w=eval_iterate(p,q,zz,escape_iterate);	// new value of w
 		};
 	};
 
@@ -395,11 +465,13 @@ std::array<leaf,2> critical_bottcher_coordinates(cpx p, cpx q){
 //		cout << "z+yy = " << z+yy << " f(c+yy) = " << eval(P,z+yy) << " versus " << "w+wd = " << w+wd << "\n";
 
 			w=z+yy;	// perturbation of critical point
-			alpha=arg(bottcher(p,q,w));
+	//		alpha=arg(better_bottcher(p,q,w));
+			alpha=arg(bottcher2(p,q,w));
 			L.angle[0]=alpha;
 		
 			w=z-yy; // opposite perturbation of critical point
-			w=bottcher(p,q,w);
+	//		w=better_bottcher(p,q,w);
+			w=bottcher2(p,q,w);
 			alpha=arg(w);
 			L.angle[1]=alpha;
 			

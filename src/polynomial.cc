@@ -50,6 +50,25 @@ cpx derivative(cpx p, cpx q, cpx z){
 	return((3.0*z*z)+p);
 };
 
+cpx deriv_iterate(cpx p, cpx q, cpx z, int n){
+	// returns derivative of nth iterate of polynomial on z;
+	// i.e. \prod_{i=0}^{n-1} (3*z_i^2 + p) where z_i: = f^i(z)
+	int i;
+	cpx w,ww;
+	
+	w=z;
+	ww=derivative(p,q,w);
+	if(n>=1){
+		for(i=0;i<n-1;i++){
+			w=eval(p,q,w);
+			ww=ww*derivative(p,q,w);
+		};
+	} else {
+		ww=1.0;	
+	};
+	return(ww);	
+};
+
 std::array<cpx, 2> critical_points(cpx p, cpx q){
 	// returns critical points of polynomial; i.e. roots of derivative
 	// returns as an array of cpx numbers
@@ -112,3 +131,20 @@ cpx newton_preimage(cpx p, cpx q, cpx z, cpx ww){
 	return(newton_root(p,q-z,ww));
 };
 
+cpx newton_preimage_iterate(cpx p, cpx q, cpx z, cpx ww, int n){
+	// returns w such that f^n(w) = z by Newton's method
+	// with initial guess ww
+
+	cpx w,a,b;
+	double t;
+	
+	t=abs(z);
+	w = ww;	// initial guess
+	a = 2.0*z;	// initial bad guess for image	
+	while(abs(a-z)>0.00000001*t){
+		a = eval_iterate(p,q,w,n);		// f^n(w)
+		b = deriv_iterate(p,q,w,n);		// (f^n)'(w)
+		w = w-(a-z)/b;	// adjust w guess
+	};
+	return(w);
+};
