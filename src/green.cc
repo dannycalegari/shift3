@@ -398,15 +398,15 @@ std::array<leaf,2> critical_bottcher_coordinates(cpx p, cpx q){
 //		cout << "z+yy = " << z+yy << " f(c+yy) = " << eval(P,z+yy) << " versus " << "w+wd = " << w+wd << "\n";
 			//here 1
 			double he, an0, an1;
-			std::thread th1(bottcher_angle, p, q, z, yy, &an1, &he);
+			std::thread th(bottcher_angle, p, q, z, yy, std::ref(L));
 			// end 1
 			// here 2
-			std::thread th2(bottcher_height, p, q, z, yy, &an0);
-			th1.join();
+			std::thread th2(bottcher_height, p, q, z, yy, std::ref(L));
+			th.join();
 			th2.join();
-			L.height = he;
-			L.angle[0] = an0;
-			L.angle[1] = an1;
+			// L.height = he;
+			// L.angle[0] = an0;
+			// L.angle[1] = an1;
 			//end 2
 
 			CL[i]=L;
@@ -416,20 +416,20 @@ std::array<leaf,2> critical_bottcher_coordinates(cpx p, cpx q){
 };
 
 
-void bottcher_height(cpx p, cpx q, cpx z, cpx yy, &an1, &he) {
+void bottcher_height(cpx p, cpx q, cpx z, cpx yy, leaf &L) {
 	cpx w = z-yy; // opposite perturbation of critical point
 	w = bottcher(p,q,w);
-	an1 = arg(w);
-	std::cout << "two angles are " << L.angle[0] << " and " << L.angle[1] << " with difference " << L.angle[0]-L.angle[1] << "\n";
+	L.angle[1] = arg(w);
+	// std::cout << "two angles are " << L.angle[0] << " and " << L.angle[1] << " with difference " << L.angle[0]-L.angle[1] << "\n";
 //		cout << "critical point " << i << " bottcher coords abs = " << green(P,z) << " arg = " << angle_list[0] << " , " << angle_list[1] << "\n";
-	he = abs(w);
+	L.height = abs(w);
 	// return tuple(an1, he)
 };
 
 
-void bottcher_angle(cpx p, cpx q, cpx z, cpx yy,  &an0) {
+void bottcher_angle(cpx p, cpx q, cpx z, cpx yy, leaf &L) {
 	cpx w = z + yy;	// perturbation of critical point
-	an0 = arg(bottcher(p,q,w));
+	L.angle[0] = arg(bottcher(p,q,w));
 	// return an0
 };
 

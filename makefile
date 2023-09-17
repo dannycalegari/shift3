@@ -1,6 +1,6 @@
-CXX = g++
-CXXFLAGS = -std=c++11 -I. `pkg-config --cflags gtkmm-3.0`
-LDFLAGS = `pkg-config --libs gtkmm-3.0`
+CXX = g++ -Wall
+CXXFLAGS = -std=c++11 -pthread -I. `pkg-config --cflags gtkmm-3.0`
+LDFLAGS = `pkg-config --libs gtkmm-3.0` -pthread
 
 SRCDIR = src
 BUILDDIR = build
