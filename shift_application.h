@@ -31,7 +31,6 @@ protected:
 
 private:
     void on_activate() override;
-    void init_app_menu();
     Gtk::Window* window;
     Gtk::Grid* grid;
     PQDrawingArea* p_area;

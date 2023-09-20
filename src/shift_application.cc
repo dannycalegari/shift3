@@ -45,7 +45,7 @@ void ShiftApplication::on_activate() {
     grid->attach(*elamination_area, 3, 0, 2, 2);
 	grid->show_all();
 
-    window->set_default_size(1250, 500);
+    window->set_default_size(1250, 600);
     add_window(*window);
     window->show_all();
     p_area->signal_button_press_event().connect(sigc::mem_fun(*this, &ShiftApplication::on_button_press_p));
@@ -59,6 +59,11 @@ bool ShiftApplication::on_button_press_p(GdkEventButton* event) {
 	b = static_cast<double>(event->y);
 	P = (a-125.0)/62.5 + (b-125.0)*I/62.5;
     std::cerr << "new P " << P << " ; old Q " << Q << std::endl;
+    std::string p_val = "p value: " + std::to_string(P.real()) + " + " + std::to_string(P.imag()) + " i";
+	std::string q_val = "q value: " + std::to_string(Q.real()) + " + " + std::to_string(Q.imag()) + " i";
+    std::string title = p_val + " ; " + q_val;
+    window->set_title(title);
+    window->show_all();
     julia_area->on_pq_set();
     p_area->on_pq_set();
     q_area->on_pq_set();
@@ -72,7 +77,9 @@ bool ShiftApplication::on_button_press_q(GdkEventButton* event) {
 	a = static_cast<double>(event->x);
 	b = static_cast<double>(event->y);
 	Q = (a-125.0)/62.5 + (b-125.0)*I/62.5;
-    std::cerr << "old P " << P << " ; new Q " << Q << std::endl;
+    std::string p_val = "p value: " + std::to_string(P.real()) + " + " + std::to_string(P.imag()) + " i";
+	std::string q_val = "q value: " + std::to_string(Q.real()) + " + " + std::to_string(Q.imag()) + " i";
+    std::string title = p_val + "  " + q_val;
     julia_area->on_pq_set();
     p_area->on_pq_set();
     q_area->on_pq_set();
