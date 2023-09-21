@@ -120,7 +120,7 @@ cpx bottcher(cpx p, cpx q, cpx z){
 	*/
 
 	int i, escape_iterate, max_iterate;
-	cpx w,b;
+	cpx w;
 	double T,b_abs,b_arg, maxsize;
 	bool escapes;
 
@@ -148,7 +148,7 @@ cpx bottcher(cpx p, cpx q, cpx z){
 	// determine argument b_arg of bottcher coordinate
 
 	double alpha;
-	cpx ww,wd,zz,y;
+	cpx wd,zz,y;
 
 	alpha=arg(w);	// argument of f^escape_iterate(z)
 
@@ -194,7 +194,7 @@ cpx bottcher2(cpx p, cpx q, cpx z){
 	*/
 
 	int i, escape_iterate, max_iterate;
-	cpx w,b;
+	cpx w, zz;
 	double T,b_abs,b_arg, maxsize;
 	bool escapes;
 
@@ -220,10 +220,6 @@ cpx bottcher2(cpx p, cpx q, cpx z){
 	};
 
 	// determine argument b_arg of bottcher coordinate
-
-	double alpha;
-	cpx ww,wd,zz,y;
-
 	// zz is initialized to z.
 	// the method will be to move zz iteratively in such a way that
 	// f^n(zz) moves radially outward, where n is the biggest iterate
@@ -260,7 +256,7 @@ std::vector<std::vector<cpx>> Julia_green(cpx p, cpx q){
 
 	std::vector<std::vector<cpx>> flow_collection;
 	std::vector<cpx> flow_segment, flow_segment_2;
-	cpx a, b, b1, b2, z;
+	cpx b, b1, b2, z;
 	std::array<cpx, 3> c;
 	double L,LL;	// large real number, eg 100
 
@@ -415,11 +411,10 @@ std::array<leaf,2> critical_bottcher_coordinates(cpx p, cpx q){
 
 	std::array<cpx,2> C = critical_points(p,q);
 
-
+	double alpha,beta,rho;
 	int i,j,d;
 	cpx z,w,bw,bww,wd,bwd,y,yy;
 	cpx sec_der;
-	// double alpha;
 	bool escaped;
 	int maxiter;
 	double maxsize;
@@ -466,11 +461,18 @@ std::array<leaf,2> critical_bottcher_coordinates(cpx p, cpx q){
 //		cout << "yy = " << yy << "\n";
 //		cout << "z+yy = " << z+yy << " f(c+yy) = " << eval(P,z+yy) << " versus " << "w+wd = " << w+wd << "\n";
 			//here 1
-			std::thread th(bottcher_angle, p, q, z, yy, std::ref(L));
-			std::thread th2(bottcher_height, p, q, z, yy, std::ref(L));
+
+			std::thread th(bottcher_first, p, q, z, yy, std::ref(alpha), std::ref(rho));
+			std::thread th2(bottcher_second, p, q, z, yy, std::ref(beta));
 			th.join();
 			th2.join();
-
+			L.height=rho;
+			
+			// "correct" alpha and beta so that their difference is TWOPI/3
+			correct_angles(alpha,beta);
+			L.angle[0]=alpha;
+			L.angle[1]=beta;
+			
 			std::cout << "two angles are " << L.angle[0] << " and " << L.angle[1] << " with difference " << L.angle[0]-L.angle[1] << " and height " << L.height <<"\n";
 			CL[i]=L;
 		};
@@ -479,17 +481,40 @@ std::array<leaf,2> critical_bottcher_coordinates(cpx p, cpx q){
 };
 
 
-void bottcher_height(cpx p, cpx q, cpx z, cpx yy, leaf &L) {
+void bottcher_first(cpx p, cpx q, cpx z, cpx yy, double &alpha, double &rho) {
 	cpx w = z-yy; // opposite perturbation of critical point
 	w = bottcher2(p,q,w);
-	L.angle[1] = arg(w);
-	L.height = abs(w);
+	alpha = arg(w);
+	rho = abs(w);
 };
 
 
-void bottcher_angle(cpx p, cpx q, cpx z, cpx yy, leaf &L) {
+void bottcher_second(cpx p, cpx q, cpx z, cpx yy, double &beta) {
 	cpx w = z + yy;	// perturbation of critical point
-	L.angle[0] = arg(bottcher2(p,q,w));
+	beta = arg(bottcher2(p,q,w));
 };
 
+void correct_angles(double &alpha, double &beta){
+	// the difference should be either *exactly* TWOPI/3 or 2*TWOPI/3
+	// this function corrects the smaller angle to the closest value making this true
+	// assumes it is already within 0.01 of some choice; if not, it complains!
+	
+	if(alpha > beta){
+		if(abs(alpha-beta-(TWOPI/3.0))<0.01){
+			beta=alpha-(TWOPI/3.0);
+		} else if(abs(alpha-beta-(2.0*TWOPI/3.0))<0.01){
+			beta=alpha-(2.0*TWOPI/3.0);
+		} else {
+			std::cout << "Something's wrong! alpha = " << alpha << " ; beta = " << beta << " ; difference = " << alpha - beta << "\n";
+		};
+	} else {
+		if(abs(beta-alpha-(TWOPI/3.0))<0.01){
+			alpha=beta-(TWOPI/3.0);
+		} else if(abs(beta-alpha-(2.0*TWOPI/3.0))<0.01){
+			alpha=beta-(2.0*TWOPI/3.0);
+		} else {
+			std::cout << "Something's wrong! alpha = " << alpha << " ; beta = " << beta << " ; difference = " << alpha - beta << "\n";
+		};	
+	};
+};
 

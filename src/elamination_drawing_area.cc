@@ -59,16 +59,6 @@ bool ElaminationDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
         cr->stroke();
     } else {
 
-        /*
-        C[0].height=1.7;
-        C[0].angle[0]=0.1;
-        C[0].angle[1]=0.1+TWOPI/3.0;
-
-        C[1].height=1.5;
-        C[1].angle[0]=0.1-1.0*PI;
-        C[1].angle[1]=0.1-1.0*PI+TWOPI/3.0;
-        */
-
         std::vector<leaf> LL;
         LL = dynamical_lamination(5, C);
 

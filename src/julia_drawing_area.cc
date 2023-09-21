@@ -6,6 +6,7 @@
 #include "julia_drawing_area.h"
 #include "polynomial.h"
 
+
 JuliaDrawingArea::JuliaDrawingArea() {
     add_events(Gdk::BUTTON_PRESS_MASK);
     green_mode = false;
@@ -53,6 +54,9 @@ bool JuliaDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
     double xx,yy,r;
     xc = width / 2;
     yc = height / 2;
+	std::array<double,3> H;
+	int maxiter;
+
 
 	if(green_mode==true) {
 		// draw gradient flowlines of green function
@@ -111,6 +115,11 @@ bool JuliaDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 			};
 			if(converge_to_orbit){
 				std::cout << "critical point " << i << " converged to " << z << "\n";
+				// TO DO: determine length of periodic orbit, and multiplier
+				int period;
+				cpx multiplier;
+				compute_period_and_multiplier(P, Q, z, 0.00001, period, multiplier);
+				std::cout << "period: " << period << " ; multiplier: " << multiplier << " ; absolute value: " << abs(multiplier) << "\n";
 				// add value to vector of attracting orbits
 				attracting_orbits.push_back(z);
 				// maybe output period and multiplier?
@@ -119,43 +128,36 @@ bool JuliaDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 
 		// step 2: for each point in the drawing area, compute time either to escape
 		// or to approach periodic orbit of critical point.
-
+		maxiter=60;
 		for(i=0;i<width;i++){
 			for(j=0;j<height;j++){
 				xx = (double) (i-xc) / (double) (xc);
 				yy = (double) (j-yc) / (double) (yc);
 				z=xx+I*yy;	// initial value
 				z=z*2.0;	// scale for window
-				converge_to_orbit=false;
-				for(k=0;k<50;k++){
+				for(k=0;k<maxiter;k++){
 					z=eval(P,Q,z);
 					if(abs(z)>5.0){ // escape
-						// draw a gray dot at (i,j) which is darker the smaller k is
-					    cr->set_source_rgb(k/50.0, k/50.0, k/50.0);
+						H = color_code(k, maxiter, 0);
+					    cr->set_source_rgb(H[0], H[1], H[2]);
 						cr->move_to(i,j);
 						cr->line_to(i+1,j);
 						cr->stroke();
-						k=50;
+						k=maxiter;
 					} else {
 						for(l=0;l<attracting_orbits.size();l++){
 							if(abs(z-attracting_orbits[l])<0.01){
-								converge_to_orbit=true;
-								if(l==0){
-									 cr->set_source_rgb(k/50.0, 1.0, 1.0);
-								} else {
-									 cr->set_source_rgb(1.0, k/50.0, 1.0);
-								};
-								// draw a dot at (i,j) in color l which is darker the smaller k is
+								// converge to attracting orbit
+								H = color_code(k,maxiter,attracting_orbits.size());
+								cr->set_source_rgb(H[0],H[1],H[2]);
 								cr->move_to(i,j);
 								cr->line_to(i+1,j);
 								cr->stroke();
-								k=50;
+								k=maxiter;
+								l=2;
 							};
 						};
 					};
-				};
-				if(converge_to_orbit==false){
-		//			std::cout << "didn't converge: " << xx+I*yy << " goes to " << z << "\n";
 				};
 			};
 		};

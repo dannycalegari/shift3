@@ -148,3 +148,82 @@ cpx newton_preimage_iterate(cpx p, cpx q, cpx z, cpx ww, int n){
 	};
 	return(w);
 };
+
+void compute_period_and_multiplier(cpx p, cpx q, cpx z, double accuracy, int &period, cpx &multiplier){
+	int i;
+	cpx w,m;
+	w=z;
+	m=1.0;
+	for(i=1;i<20;i++){
+		m=m*derivative(p,q,w);	// update multiplier
+		w=eval(p,q,w);	// update w
+		if(abs(w-z)<accuracy){	// found a hit!
+			period=i;	
+			multiplier=m;
+			i=20;	// exit loop
+		};
+	};
+	return;
+};
+
+
+std::array<double,3> color_code(int iter, int maxiter, int escape){
+// not sure if this should really go in this file, but why not?
+
+	double r,g,b;
+	std::array<double,3> H;
+	
+	if(escape == 0){
+		if(iter <= maxiter/6){
+			r = 6.0*iter/maxiter;
+			g = 0.0;
+			b = 0.0;
+		} else if(iter <= maxiter/2){
+			r = 1.0;
+			g = 3.0*(iter - maxiter/6)/maxiter;
+			b = 0.0;
+		} else {
+			r = 1.0;
+			g = 1.0;
+			b = 2.0*(iter - maxiter/2)/maxiter;
+		};
+		H[0]=r;
+		H[1]=g;
+		H[2]=b;
+	} else if(escape == 1) {
+		if(iter <= maxiter/6){
+			b = 6.0*iter/maxiter;
+			g = 1.0;
+			r = 0.0;
+		} else if(iter <= maxiter/2){
+			b = 1.0;
+			g = 1.0 - 3.0*(iter - maxiter/6)/maxiter;
+			r = 0.0;
+		} else {
+			b = 1.0;
+			g = 0.0;
+			r = 2.0*(iter - maxiter/2)/maxiter;
+		};
+		H[0]=r;
+		H[1]=g;
+		H[2]=b;	
+	} else {
+		if(iter <= maxiter/6){
+			g = 6.0*iter/maxiter;
+			r = 1.0;
+			b = 1.0;
+		} else if(iter <= maxiter/2){
+			g = 1.0;
+			r = 1.0 - 3.0*(iter - maxiter/6)/maxiter;
+			b = 1.0;
+		} else {
+			g = 1.0;
+			r = 0.0;
+			b = 1.0 - 2.0*(iter - maxiter/2)/maxiter;
+		};
+		H[0]=r;
+		H[1]=g;
+		H[2]=b;		
+	};
+	return(H);
+};

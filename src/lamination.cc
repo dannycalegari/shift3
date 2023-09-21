@@ -63,8 +63,6 @@ std::array<leaf,3> preimage(leaf L){
 std::vector<leaf> dynamical_lamination(int depth, std::array<leaf,2> C){
 	// given two critical leaves C, generates the associated dynamical elamination
 	
-
-	
 	cpx a,b;
 	a = zee(C[0],0)/zee(C[0],1);
 	b = zee(C[1],0)/zee(C[1],1);

@@ -39,65 +39,59 @@ bool PQDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
     Gtk::Allocation allocation = get_allocation();
     const int width = allocation.get_width();
     const int height = allocation.get_height();
-        int xc, yc, i, j, k, l;
-        double xx, yy, ll, a, b, c;
-        cpx w, z;
-		std::array<cpx, 2> C; 
-		bool converge_to_orbit;
+    int xc, yc, i, j, k, l, maxiter, cumulative_iter;
+    double xx, yy, ll, a, b, c;
+    cpx w, z;
+	std::array<cpx, 2> C; 
+	int convergent_orbits;
+	bool converge_to_orbit;
+	std::array<double,3> H;
 
-        xc = width / 2;
-        yc = height / 2;
-        cr->set_line_width(1.0);
+	maxiter=60;
+    xc = width / 2;
+    yc = height / 2;
+    cr->set_line_width(1.0);
         
-        for(i=0;i<width;i++){
-        	for(j=0;j<height;j++){
-				xx = (double) (i-xc) / (double) (xc);
-				yy = (double) (j-yc) / (double) (yc);
-				w=xx+I*yy;	// initial value
-				w=w*2.0;	// scale for window
-				if(p_type==true){
-	        		C = critical_points(w,Q);
-	        	} else {
-	        		C = critical_points(P,w);
-	        	};
-        		for(k=0;k<2;k++){
-        			z = C[k];	// initial value
-        			converge_to_orbit=true;
-        			for(l=0;l<50;l++){
-        				if(p_type==true){
-        					z = eval(w,Q,z);
-        				} else {
-        					z = eval(P,w,z);
-        				};
-        				if(abs(z)>5.0){	// escape
-        					ll = (double) l;
-							converge_to_orbit=false;
-							if(k==0){
-								a = 0.8*ll/50.0;
-								b = 0.3*ll/50.0;
-								c = 0.5*ll/50.0;
-							} else {
-								a = a + 0.2*ll/50.0;
-								b = b + 0.7*ll/50.0;
-								c = c + 0.5*ll/50.0;
-							};
-							l=50;
-						};
+    for(i=0;i<width;i++){
+        for(j=0;j<height;j++){
+			xx = (double) (i-xc) / (double) (xc);
+			yy = (double) (j-yc) / (double) (yc);
+			w=xx+I*yy;	// initial value
+			w=w*2.0;	// scale for window
+			if(p_type==true){
+	        	C = critical_points(w,Q);
+	        } else {
+	        	C = critical_points(P,w);
+	        };
+	        cumulative_iter=0;	// initial value
+	        convergent_orbits=0; // initial value
+        	for(k=0;k<2;k++){
+        		z = C[k];	// initial value
+        		converge_to_orbit=true;
+        		for(l=0;l<maxiter;l++){
+        			if(p_type==true){
+        				z = eval(w,Q,z);
+        			} else {
+        				z = eval(P,w,z);
         			};
-        			if(converge_to_orbit==true){
-        				a = 1.0;
-        				b = 1.0;
-        				c = 1.0;
-        				k=2;
-        			};
+        			if(abs(z)>5.0){	// escape
+						converge_to_orbit=false;
+						cumulative_iter=cumulative_iter+l;	
+						l=maxiter;
+					};
         		};
-        		cr->set_source_rgb(a,b,c);
-        		cr->move_to(i,j);
-    			cr->line_to(i+1,j);
-    			cr->stroke();
+        		if(converge_to_orbit==true){
+        			cumulative_iter=cumulative_iter+l;
+        			convergent_orbits++;
+        		};
         	};
+    		H = color_code(cumulative_iter, maxiter*2, convergent_orbits);
+    		cr->set_source_rgb(H[0],H[1],H[2]);
+    		cr->move_to(i,j);
+ 			cr->line_to(i+1,j);
+    		cr->stroke();
         };
-
+    };
 
     return true;
 }
