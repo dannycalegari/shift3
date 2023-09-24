@@ -12,7 +12,8 @@
 #define PI 		3.1415926535897932384626433
 #define TWOPI	6.283185307179586476925286766559
 extern const cpx I;
-extern cpx P, Q;
+extern cpx P, Q, P_center, Q_center;
+extern double zoom;
 
 // polynomial functions
 cpx eval(cpx p, cpx q, cpx z);
@@ -25,6 +26,7 @@ cpx newton_root(cpx p, cpx q, cpx z);
 std::array<cpx, 3> preimage(cpx p, cpx q, cpx z);
 cpx newton_preimage(cpx p, cpx q, cpx z, cpx ww);
 cpx newton_preimage_iterate(cpx p, cpx q, cpx z, cpx ww, int n);
+cpx newton_preimage_vector_iterate(cpx p, cpx q, cpx z, cpx ww, int n);
 void compute_period_and_multiplier(cpx p, cpx q, cpx z, double accuracy, int &period, cpx &multiplier);
 std::array<double,3> color_code(int iter, int maxiter, int escape);
 
