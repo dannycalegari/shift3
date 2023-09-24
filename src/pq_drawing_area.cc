@@ -40,14 +40,14 @@ bool PQDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
     const int width = allocation.get_width();
     const int height = allocation.get_height();
     int xc, yc, i, j, k, l, maxiter, cumulative_iter;
-    double xx, yy, ll, a, b, c;
-    cpx w, z;
+    double xx, yy; 
+    cpx w, z, zz;
 	std::array<cpx, 2> C; 
 	int convergent_orbits;
-	bool converge_to_orbit;
+	int converge_to_orbit;
 	std::array<double,3> H;
 
-	maxiter=60;
+	maxiter=100;
     xc = width / 2;
     yc = height / 2;
     cr->set_line_width(1.0);
@@ -57,30 +57,47 @@ bool PQDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 			xx = (double) (i-xc) / (double) (xc);
 			yy = (double) (j-yc) / (double) (yc);
 			w=xx+I*yy;	// initial value
-			w=w*2.0;	// scale for window
+			w=w*zoom;	// scale for window
 			if(p_type==true){
+				w=w+P_center;	// translate for window
 	        	C = critical_points(w,Q);
 	        } else {
+	        	w=w+Q_center;	// translate for window
 	        	C = critical_points(P,w);
 	        };
 	        cumulative_iter=0;	// initial value
 	        convergent_orbits=0; // initial value
         	for(k=0;k<2;k++){
         		z = C[k];	// initial value
-        		converge_to_orbit=true;
+        		zz = C[k];
+        		converge_to_orbit=2;
         		for(l=0;l<maxiter;l++){
         			if(p_type==true){
         				z = eval(w,Q,z);
         			} else {
         				z = eval(P,w,z);
         			};
+        			if(l%2 ==1){
+        				if(p_type==true){
+        					zz = eval(w,Q,zz);
+        				} else {
+        					zz = eval(P,w,zz);
+        				};
+        				if(abs(z-zz)<0.001){
+        		//			std::cout << "convergence! " << l << "\n";
+        					converge_to_orbit=1;
+        					cumulative_iter=cumulative_iter+l;
+        					convergent_orbits++;
+        					l=maxiter;
+        				};
+        			};
         			if(abs(z)>5.0){	// escape
-						converge_to_orbit=false;
+						converge_to_orbit=0;
 						cumulative_iter=cumulative_iter+l;	
 						l=maxiter;
 					};
         		};
-        		if(converge_to_orbit==true){
+        		if(converge_to_orbit==2){
         			cumulative_iter=cumulative_iter+l;
         			convergent_orbits++;
         		};

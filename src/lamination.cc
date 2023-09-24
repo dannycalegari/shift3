@@ -85,7 +85,7 @@ std::vector<leaf> dynamical_lamination(int depth, std::array<leaf,2> C){
 		std::cout << "problem! critical leaves are linked! \n";
 		return(M);
 	} else {
-		std::cout << "critical leaves unlinked. \n";
+	//	std::cout << "critical leaves unlinked. \n";
 	};
 	
 	// put critical leaves on list

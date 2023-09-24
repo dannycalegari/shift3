@@ -18,12 +18,16 @@ struct poly{
 };
 
 */
+#include <iostream>
 
 #include "polynomial.h"
 
 const cpx I (0.0,1.0);
 cpx P  = 1.0+0.3*I;	// initial value
 cpx Q  = 0.7-0.4*I; // initial value;
+double zoom = 2.0;	// initial value
+cpx P_center = 0.0;	// initial value;
+cpx Q_center = 0.0; // initial value;
 
 cpx eval(cpx p, cpx q, cpx z){
 	// returns value of polynomial on z; i.e z^3 + p*z + q
@@ -149,6 +153,40 @@ cpx newton_preimage_iterate(cpx p, cpx q, cpx z, cpx ww, int n){
 	return(w);
 };
 
+cpx newton_preimage_vector_iterate(cpx p, cpx q, cpx z, cpx ww, int n){
+	// returns w such that f^n(w) = z by Newton's method
+	// with initial guess ww
+	// uses *vector* Newton's method; is it better and more stable?
+	// experimentally, it seems slower by a factor of 2
+	
+	cpx w,v,b;
+	std::vector<cpx> a;
+	double error;
+	int i;
+	
+	a.clear();
+	a.push_back(ww);	// initial guess
+	for(i=0;i<n;i++){
+		a.push_back(eval(p,q,a[i]));
+	};
+	w=a[n];
+	a[n]=z;	// adjust last element of vector!
+
+	error=1.0;
+
+	while(1){
+		error=0.0;
+		for(i=0;i<n;i++){
+			v = eval(p,q,a[i]);
+			b = derivative(p,q,a[i]);
+			a[i] = a[i] - (v-a[i+1])/b;	// adjust guess
+			error=error+abs(eval(p,q,a[i])-a[i+1])/abs(a[i+1]);
+		};
+		if (error<0.000000001) break;
+	};
+	return(a[0]);
+};
+
 void compute_period_and_multiplier(cpx p, cpx q, cpx z, double accuracy, int &period, cpx &multiplier){
 	int i;
 	cpx w,m;
@@ -192,16 +230,16 @@ std::array<double,3> color_code(int iter, int maxiter, int escape){
 		H[2]=b;
 	} else if(escape == 1) {
 		if(iter <= maxiter/6){
-			b = 6.0*iter/maxiter;
-			g = 1.0;
+			g = 6.0*iter/maxiter;
+			b = 0.0;
 			r = 0.0;
 		} else if(iter <= maxiter/2){
-			b = 1.0;
-			g = 1.0 - 3.0*(iter - maxiter/6)/maxiter;
+			g = 1.0;
+			b = 3.0*(iter - maxiter/6)/maxiter;
 			r = 0.0;
 		} else {
+			g = 1.0;
 			b = 1.0;
-			g = 0.0;
 			r = 2.0*(iter - maxiter/2)/maxiter;
 		};
 		H[0]=r;
@@ -210,16 +248,16 @@ std::array<double,3> color_code(int iter, int maxiter, int escape){
 	} else {
 		if(iter <= maxiter/6){
 			g = 6.0*iter/maxiter;
+			b = 0.0;
 			r = 1.0;
-			b = 1.0;
 		} else if(iter <= maxiter/2){
 			g = 1.0;
-			r = 1.0 - 3.0*(iter - maxiter/6)/maxiter;
-			b = 1.0;
+			b = 3.0*(iter - maxiter/6)/maxiter;
+			r = 1.0;
 		} else {
 			g = 1.0;
-			r = 0.0;
-			b = 1.0 - 2.0*(iter - maxiter/2)/maxiter;
+			b = 1.0;
+			r = 1.0 - 2.0*(iter - maxiter/2)/maxiter;
 		};
 		H[0]=r;
 		H[1]=g;

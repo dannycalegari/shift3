@@ -113,17 +113,17 @@ bool JuliaDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 					j=400;
 				};
 			};
+			
 			if(converge_to_orbit){
-				std::cout << "critical point " << i << " converged to " << z << "\n";
-				// TO DO: determine length of periodic orbit, and multiplier
-				int period;
-				cpx multiplier;
-				compute_period_and_multiplier(P, Q, z, 0.00001, period, multiplier);
-				std::cout << "period: " << period << " ; multiplier: " << multiplier << " ; absolute value: " << abs(multiplier) << "\n";
+		//		std::cout << "critical point " << i << " converged to " << z << "\n";
+		//		int period;
+		//		cpx multiplier;
+		//		compute_period_and_multiplier(P, Q, z, 0.00001, period, multiplier);
+		//		std::cout << "period: " << period << " ; multiplier: " << multiplier << " ; absolute value: " << abs(multiplier) << "\n";
 				// add value to vector of attracting orbits
 				attracting_orbits.push_back(z);
-				// maybe output period and multiplier?
 			};
+			
 		};
 
 		// step 2: for each point in the drawing area, compute time either to escape

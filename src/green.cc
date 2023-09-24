@@ -56,10 +56,8 @@ cpx better_bottcher(cpx p, cpx q, cpx z){
 	w.clear();
 	w.push_back(z);
 
-//	std::cout << "computing itinerary; begins at " << z << "\n";
 	for(i=0;i<max_iterate;i++){
 		w.push_back(eval(p,q,w[i]));
-//		std::cout << "iterate " << i+1 << " is " << w[i+1] << "\n";
 		if(abs(w[i+1])>maxsize){
 			T=log(abs(w[i+1]));
 			b_abs=exp(T/pow(3.0,i+1));
@@ -75,32 +73,17 @@ cpx better_bottcher(cpx p, cpx q, cpx z){
 	// determine argument b_arg of bottcher coordinate
 
 
-//	std::cout << "constructing radial segment " << escape_iterate+1 << "\n";
 	L = radial_segment(w[escape_iterate], 10000.0, 1000);
-//	for(i=0;i<L.size();i++){
-//		std::cout << L[i] << " ";
-//	};
-//	std::cout << "\n";
 
 	for(i=escape_iterate-1;i>-1;i--){
-//		std::cout << "constructing radial segment " << i+1 << "\n";
 		LL.clear();
 		LL.push_back(w[i]);
 		for(j=1;j<L.size();j++){
 			u=newton_preimage(p,q,L[j],LL[j-1]);
 			LL.push_back(u);
-//			std::cout << u << " ";
 		};
 		L = radial_segment(LL[LL.size()-1], 10000.0, 1000);
-//		for(j=0;j<L.size();j++){
-//			std::cout << L[j] << " ";
-//		};
-//		std::cout << "\n";
 		LL.insert(LL.end(),L.begin(),L.end());
-//		for(j=0;j<LL.size();j++){
-//			std::cout << LL[j] << " ";
-//		};
-//		std::cout << "\n";
 		L=LL;
 	};
 
@@ -156,12 +139,7 @@ cpx bottcher(cpx p, cpx q, cpx z){
 	while(abs(zz)<maxsize){
 
 		w=eval_iterate(p,q,zz,escape_iterate);
-//		ww=eval_iterate(p,q,zz+0.0001,escape_iterate);
-
 		wd=deriv_iterate(p,q,zz,escape_iterate);
-//		std::cout << "actual derivative " << wd << " ";
-//		wd=(ww-w)/0.0001;
-//		std::cout << "approx derivative " << wd << " ";
 
 		/* head in the direction of y
 			which has abs(w')=abs(w)*1.01 and
@@ -179,7 +157,6 @@ cpx bottcher(cpx p, cpx q, cpx z){
 	};
 
 	b_arg=arg(zz);
-	std::cout << "bottcher coordinate is " << b_abs*exp(I*b_arg) << "\n";
 
 	w=b_abs*exp(I*b_arg);
 	return(w);
@@ -197,7 +174,7 @@ cpx bottcher2(cpx p, cpx q, cpx z){
 	cpx w, zz;
 	double T,b_abs,b_arg, maxsize;
 	bool escapes;
-
+  
 	maxsize=1000.0;
 	max_iterate=20;
 	w=z;
@@ -226,12 +203,13 @@ cpx bottcher2(cpx p, cpx q, cpx z){
 	// such that abs(f^n(zz))<maxsize*maxsize.
 	// when abs(zz)>maxsize we return the argument of zz.
 
-
-	zz=z;
+    zz=z;
 	w=eval_iterate(p,q,zz,escape_iterate);	// w=f^escape_iterate(zz);
 	while(abs(zz)<maxsize){
-		w=w*1.01;	// move w radially outwards
+		w=w*1.05;	// move w radially outwards
 		// using newton's method, zz is adjusted so that f^escape_iterate(zz)=y
+
+	//	zz=newton_preimage_vector_iterate(p,q,w,zz,escape_iterate);	slower by a factor of 2
 		zz=newton_preimage_iterate(p,q,w,zz,escape_iterate);
 
 		if(abs(w)>maxsize*maxsize){	// if w is too big
@@ -241,9 +219,9 @@ cpx bottcher2(cpx p, cpx q, cpx z){
 	};
 
 	b_arg=arg(zz);
-	std::cout << "bottcher coordinate is " << b_abs*exp(I*b_arg) << "\n";
 
 	w=b_abs*exp(I*b_arg);
+	
 	return(w);
 };
 
@@ -473,7 +451,6 @@ std::array<leaf,2> critical_bottcher_coordinates(cpx p, cpx q){
 			L.angle[0]=alpha;
 			L.angle[1]=beta;
 			
-			std::cout << "two angles are " << L.angle[0] << " and " << L.angle[1] << " with difference " << L.angle[0]-L.angle[1] << " and height " << L.height <<"\n";
 			CL[i]=L;
 		};
 	};
