@@ -225,6 +225,71 @@ cpx bottcher2(cpx p, cpx q, cpx z){
 	return(w);
 };
 
+cpx bottcher_3(cpx p, cpx q, cpx z){
+	/* returns bottcher coordinate of z for the polynomial
+	z^3 + z*p + q
+
+	Well-defined iff z is in the attracting basin of infinity;
+	otherwise by default return 1.0;
+	*/
+  std::vector<cpx> orbit;
+
+  cpx w=z;
+  double maxsize=1000.0;
+  int max_iterate=20, escape_iterate;
+  bool escapes=false;
+  
+  for(int i=0;i<max_iterate;i++){
+    orbit.push_back(w);
+    w=eval(p,q,w);
+    if(abs(w)>maxsize){
+      escapes=true;
+      escape_iterate=i+1;
+      break;
+    };
+  };
+  if(escapes==false){
+    return(1.0);
+  };
+
+  std::vector<std::vector<cpx>> paths;
+  /* paths[j] is path from w^3 to w*(some cube root of unity),
+     such that arg(paths[j].last) is in [j/3,(j+1)/3]*2pi */
+  cpx omega = exp(cpx(0,2.0*M_PI/3)), omega2 = exp(cpx(0,4.0*M_PI/3));
+  for (int j=0;j<3;j++){
+    cpx start = log(-pow(w,3.0))+cpx(0,M_PI),
+      stop = log(-w)+cpx(0,M_PI) + cpx(0,j*2.0*M_PI/3);
+    // this log(-...) yoga to use the branch cut along the positive axis
+    
+    for(double i=0;i<100;i++)
+      paths[j].push_back(exp((i*stop + (100-i)*start)/100.0));
+  }
+
+  for (int t=escape_iterate-1;t>=0;t--){
+    // lift paths by continuity
+    for(int j=0;j<3;j++){
+      for(int i=0;i<paths[j].size();i++){
+	if(i==0)
+	  paths[j][i]=orbit[t];
+	else
+	  paths[j][i]=newton_preimage(p,q,paths[j][i],paths[j][i-1]);	
+      }
+    }
+
+    // record new trit into w
+    int trit = -1;
+    for (int j=0;j<3;j++)
+      if(abs(paths[j].back()-orbit[t]) < abs(paths[(j+1)%3].back()-orbit[t])
+	 && abs(paths[j].back()-orbit[t]) < abs(paths[(j+2)%3].back()-orbit[t]))
+	trit=j;
+    
+    w = -pow(-w,1.0/3) + cpx(0,trit*2.0*M_PI/3);
+  }
+  return w;
+
+#error not even tested, just passes compilation!
+}
+  
 std::vector<std::vector<cpx>> Julia_green(cpx p, cpx q){
 	/* returns approximate green gradient flowlines (ie lines whose bottcher coordinates
 	have constant argument) for cubic polynomial z^3 + p*z + q. Along the way we get
