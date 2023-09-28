@@ -1,8 +1,19 @@
-/*	qtshift.cc
+/*
 
 	Copyright 2023 by Danny Calegari and Meg Ford
 
 Informal description
+
+1. Build requires you to install GTKmm3
+
+	To install GTKmm3 on Mac: https://formulae.brew.sh/formula/gtkmm
+
+	To install on Linux, follow the instructions for your distro: https://gtkmm.org/en/download.html
+2. To build and run the application:
+	$ cd shift3
+	$ make
+	$ ./shift3
+
 
 Libraries to include:
 
@@ -10,7 +21,8 @@ Libraries to include:
 	complex numbers
 	vectors
 	complex polynomials (root finding up to degree 3)
-	qt graphics
+
+
 
 Structures defined in other files:
 
