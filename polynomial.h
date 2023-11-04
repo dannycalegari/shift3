@@ -3,6 +3,8 @@
 #include <array>
 #include <complex>
 #include <math.h>
+#include <tuple>
+#include <vector>
 
 // abbreviations
 #define cpx		std::complex<double>				// complex number
@@ -29,4 +31,6 @@ cpx newton_preimage_iterate(cpx p, cpx q, cpx z, cpx ww, int n);
 cpx newton_preimage_vector_iterate(cpx p, cpx q, cpx z, cpx ww, int n);
 void compute_period_and_multiplier(cpx p, cpx q, cpx z, double accuracy, int &period, cpx &multiplier);
 std::array<double,3> color_code(int iter, int maxiter, int escape);
+typedef std::array<double,3> color_value;
+typedef std::tuple<int, int> julia_pixels;
 
