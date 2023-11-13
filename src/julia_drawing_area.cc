@@ -1,30 +1,28 @@
 /* julia_drawing_area.cc */
 
+#include <future>
 #include <iostream>
 #include <thread>
-#include <future>
-// #include <utility>
-// #include <vector>
-// #include <tuple>
 
 #include "green.h"
 #include "julia_drawing_area.h"
-// #include "polynomial.h"
 
-
-JuliaDrawingArea::JuliaDrawingArea() {
+JuliaDrawingArea::JuliaDrawingArea()
+{
     add_events(Gdk::BUTTON_PRESS_MASK);
     green_mode = false;
     signal_draw().connect(sigc::mem_fun(*this, &JuliaDrawingArea::on_draw));
     signal_button_press_event().connect(sigc::mem_fun(*this, &JuliaDrawingArea::on_button_press));
 }
 
-void JuliaDrawingArea::set_green_mode(bool green) {
+void JuliaDrawingArea::set_green_mode(bool green)
+{
     green_mode = green;
     queue_draw();
 }
 
-bool JuliaDrawingArea::on_point_set(const Cairo::RefPtr<Cairo::Context>& cr) {
+bool JuliaDrawingArea::on_point_set(const Cairo::RefPtr<Cairo::Context>& cr)
+{
     Gdk::Rectangle allocation = get_allocation();
     width = allocation.get_width();
     height = allocation.get_height();

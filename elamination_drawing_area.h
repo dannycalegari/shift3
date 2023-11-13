@@ -7,7 +7,7 @@ class ElaminationDrawingArea : public Gtk::DrawingArea {
 public:
     ElaminationDrawingArea();
     void set_input_point(int x, int y);
-	void on_pq_set();
+    void on_pq_set();
 
 protected:
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;

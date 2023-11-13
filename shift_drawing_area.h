@@ -7,7 +7,7 @@ class ShiftDrawingArea : public Gtk::DrawingArea {
 public:
     ShiftDrawingArea();
     void set_input_point(int x, int y);
-	void on_p_set();
+    void on_p_set();
 
 protected:
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;

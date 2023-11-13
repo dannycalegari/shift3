@@ -1,13 +1,11 @@
 /* lamination.h */
 #pragma once
-#include <vector>
 #include <array>
-
-#pragma once
+#include <vector>
 
 struct leaf {
-	double height;		// should be > 1
-	double angle[2];	// should be in the interval [-pi,pi]
+    double height; // should be > 1
+    double angle[2]; // should be in the interval [-pi,pi]
 };
 
-std::vector<leaf> dynamical_lamination(int depth, std::array<leaf,2> C);
+std::vector<leaf> dynamical_lamination(int depth, std::array<leaf, 2> C);

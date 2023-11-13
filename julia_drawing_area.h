@@ -1,11 +1,10 @@
 #pragma once
 
-#include <map>
-#include <future>
-#include <tuple>
-
 #include <cairomm/context.h>
+#include <future>
 #include <gtkmm.h>
+#include <map>
+#include <tuple>
 
 #include "polynomial.h"
 
