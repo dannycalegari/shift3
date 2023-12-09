@@ -131,7 +131,7 @@ bool JuliaDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 
         // Create threads
         std::vector<std::pair<std::thread, std::future<std::map<julia_pixels, color_value>>>> threads;
-        std::cout << threads.max_size();
+        // std::cout << threads.max_size();
         for (int i = 0; i < height; i++) {
             std::promise<std::map<julia_pixels, color_value>> prom;
             std::future<std::map<julia_pixels, color_value>> futo = prom.get_future();
