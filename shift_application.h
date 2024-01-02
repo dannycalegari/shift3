@@ -27,6 +27,7 @@ public:
 
 protected:
     ShiftApplication();
+    virtual ~ShiftApplication();
     bool on_button_press_p(GdkEventButton* event);
     bool on_button_press_q(GdkEventButton* event);
     bool on_key_press(GdkEventKey* event);
@@ -34,10 +35,8 @@ protected:
 private:
     void on_activate() override;
     Gtk::Window* window;
-    //    Gtk::Grid* grid;
     PQDrawingArea* p_area;
     PQDrawingArea* q_area;
     JuliaDrawingArea* julia_area;
     ElaminationDrawingArea* elamination_area;
-    //  double a, b;
 };

@@ -11,6 +11,7 @@
 class JuliaDrawingArea : public Gtk::DrawingArea {
 public:
     JuliaDrawingArea();
+    virtual ~JuliaDrawingArea();
     void on_pq_set();
     void set_green_mode(bool green);
 

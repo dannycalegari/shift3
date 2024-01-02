@@ -15,6 +15,11 @@ JuliaDrawingArea::JuliaDrawingArea()
     signal_button_press_event().connect(sigc::mem_fun(*this, &JuliaDrawingArea::on_button_press));
 }
 
+JuliaDrawingArea::~JuliaDrawingArea()
+{
+
+}
+
 void JuliaDrawingArea::set_green_mode(bool green)
 {
     green_mode = green;
@@ -75,24 +80,23 @@ bool JuliaDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
         height = allocation.get_height();
     }
 
-    int xc, yc, i, j, k, l, a, b;
-    double xx, yy, r;
+    int xc, yc;
     xc = width / 2;
     yc = height / 2;
-    std::array<double, 3> H;
-    int maxiter;
 
     if (green_mode == true) {
         // draw gradient flowlines of green function
         std::vector<std::vector<cpx>> F = Julia_green(P, Q); // should be Julia_green(p,q)
         cr->set_line_width(1.0);
         cr->set_source_rgb(0.5, 0.0, 0.0);
+        int f_size = (int)F.size();
 
-        for (int i = 0; i < F.size(); i++) {
+        for (int i = 0; i < f_size; i++) {
             julia_pixels j_points = JuliaDrawingArea::calc_points(F, i, 0, xc, yc);
             cr->move_to(std::get<0>(j_points), std::get<1>(j_points));
-            for (int j = 1; j < F[i].size(); j++) {
-                j_points = JuliaDrawingArea::calc_points(F, i,  j, xc, yc);
+            int fi_size = (int)F[i].size();
+            for (int j = 1; j < fi_size; j++) {
+                j_points = JuliaDrawingArea::calc_points(F, i, j, xc, yc);
                 cr->line_to(std::get<0>(j_points), std::get<1>(j_points));
             };
             cr->stroke();
@@ -112,7 +116,7 @@ bool JuliaDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
             // for each critical point
             z = C[i];
             converge_to_orbit = true;
-            for (j = 0; j < 400; j++) {
+            for (int j = 0; j < 400; j++) {
                 // iterate z -> f(z) until escape or periodic
                 z = eval(P, Q, z);
                 if (abs(z) > 5.0) { // escape
@@ -174,6 +178,7 @@ void JuliaDrawingArea::construct_drawing(int i, int xc, int yc, std::vector<cpx>
     int maxiter = 60;
     cpx z;
     std::map<julia_pixels, color_value> drawing_point_promises;
+    int orbit_size = (int)attracting_orbits.size();
 
     for (int j = 0; j < width; j++) {
         cpx xx = (double)(i - xc) / (double)(xc);
@@ -181,6 +186,7 @@ void JuliaDrawingArea::construct_drawing(int i, int xc, int yc, std::vector<cpx>
         z = xx + I * yy; // initial value
         z = z * 2.0; // scale for window
         julia_pixels julia = std::make_tuple(i, j);
+
         for (int k = 0; k < maxiter; k++) {
             z = eval(P, Q, z);
             if (abs(z) > 5.0) { // escape
@@ -188,7 +194,7 @@ void JuliaDrawingArea::construct_drawing(int i, int xc, int yc, std::vector<cpx>
                 drawing_point_promises.emplace(julia, H);
                 break;
             } else {
-                for (int l = 0; l < attracting_orbits.size(); l++) {
+                for (int l = 0; l < orbit_size; l++) {
                     if (abs(z - attracting_orbits[l]) < 0.01) {
                         // converge to attracting orbit
                         H = color_code(k, maxiter, attracting_orbits.size());

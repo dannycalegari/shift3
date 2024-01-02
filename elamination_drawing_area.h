@@ -6,6 +6,7 @@
 class ElaminationDrawingArea : public Gtk::DrawingArea {
 public:
     ElaminationDrawingArea();
+    virtual ~ElaminationDrawingArea();
     void set_input_point(int x, int y);
     void on_pq_set();
 

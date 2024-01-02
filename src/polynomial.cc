@@ -15,7 +15,7 @@ a cubic depressed polynomial
 
 struct poly{
         cpx p,q;
-};
+}
 
 */
 #include <iostream>
@@ -33,7 +33,7 @@ cpx eval(cpx p, cpx q, cpx z)
 {
     // returns value of polynomial on z; i.e z^3 + p*z + q
     return ((z * z * z) + (p * z) + q);
-};
+}
 
 cpx eval_iterate(cpx p, cpx q, cpx z, int n)
 {
@@ -47,15 +47,15 @@ cpx eval_iterate(cpx p, cpx q, cpx z, int n)
 
     for (i = 0; i < n; i++) {
         w = eval(p, q, w);
-    };
+    }
     return (w);
-};
+}
 
 cpx derivative(cpx p, cpx q, cpx z)
 {
     // returns derivative of polynomial; i.e. 3*z^2 + p
     return ((3.0 * z * z) + p);
-};
+}
 
 cpx deriv_iterate(cpx p, cpx q, cpx z, int n)
 {
@@ -73,9 +73,9 @@ cpx deriv_iterate(cpx p, cpx q, cpx z, int n)
         };
     } else {
         ww = 1.0;
-    };
+    }
     return (ww);
-};
+}
 
 std::array<cpx, 2> critical_points(cpx p, cpx q)
 {
@@ -107,7 +107,7 @@ std::array<cpx, 3> roots(cpx p, cpx q)
     r[2] = (C * zeta * zeta) - (p / (3.0 * C * zeta * zeta));
 
     return (r);
-};
+}
 
 cpx newton_root(cpx p, cpx q, cpx z)
 {
@@ -122,9 +122,9 @@ cpx newton_root(cpx p, cpx q, cpx z)
         a = (w * w * w) + (p * w) + q;
         b = (3.0 * w * w) + p;
         w = w - (a / b);
-    };
+    }
     return (w);
-};
+}
 
 std::array<cpx, 3> preimage(cpx p, cpx q, cpx z)
 {
@@ -133,7 +133,7 @@ std::array<cpx, 3> preimage(cpx p, cpx q, cpx z)
     // entries of r are the roots of the polynomial w^3 + p*w + (q-z);
 
     return (roots(p, q - z));
-};
+}
 
 cpx newton_preimage(cpx p, cpx q, cpx z, cpx ww)
 {
@@ -141,7 +141,7 @@ cpx newton_preimage(cpx p, cpx q, cpx z, cpx ww)
     // with initial guess ww
 
     return (newton_root(p, q - z, ww));
-};
+}
 
 cpx newton_preimage_iterate(cpx p, cpx q, cpx z, cpx ww, int n)
 {
@@ -158,9 +158,9 @@ cpx newton_preimage_iterate(cpx p, cpx q, cpx z, cpx ww, int n)
         a = eval_iterate(p, q, w, n); // f^n(w)
         b = deriv_iterate(p, q, w, n); // (f^n)'(w)
         w = w - (a - z) / b; // adjust w guess
-    };
+    }
     return (w);
-};
+}
 
 cpx newton_preimage_vector_iterate(cpx p, cpx q, cpx z, cpx ww, int n)
 {
@@ -178,7 +178,7 @@ cpx newton_preimage_vector_iterate(cpx p, cpx q, cpx z, cpx ww, int n)
     a.push_back(ww); // initial guess
     for (i = 0; i < n; i++) {
         a.push_back(eval(p, q, a[i]));
-    };
+    }
     w = a[n];
     a[n] = z; // adjust last element of vector!
 
@@ -192,9 +192,9 @@ cpx newton_preimage_vector_iterate(cpx p, cpx q, cpx z, cpx ww, int n)
         };
         if (error < 0.000000001)
             break;
-    };
+    }
     return (a[0]);
-};
+}
 
 void compute_period_and_multiplier(cpx p, cpx q, cpx z, double accuracy, int& period, cpx& multiplier)
 {
@@ -209,10 +209,10 @@ void compute_period_and_multiplier(cpx p, cpx q, cpx z, double accuracy, int& pe
             period = i;
             multiplier = m;
             i = 20; // exit loop
-        };
-    };
+        }
+    }
     return;
-};
+}
 
 std::array<double, 3> color_code(int iter, int maxiter, int escape)
 {
@@ -234,7 +234,7 @@ std::array<double, 3> color_code(int iter, int maxiter, int escape)
             r = 1.0;
             g = 1.0;
             b = 2.0 * (iter - maxiter / 2) / maxiter;
-        };
+        }
         H[0] = r;
         H[1] = g;
         H[2] = b;
@@ -251,7 +251,7 @@ std::array<double, 3> color_code(int iter, int maxiter, int escape)
             g = 1.0;
             b = 1.0;
             r = 2.0 * (iter - maxiter / 2) / maxiter;
-        };
+        }
         H[0] = r;
         H[1] = g;
         H[2] = b;
@@ -268,10 +268,10 @@ std::array<double, 3> color_code(int iter, int maxiter, int escape)
             g = 1.0;
             b = 1.0;
             r = 1.0 - 2.0 * (iter - maxiter / 2) / maxiter;
-        };
+        }
         H[0] = r;
         H[1] = g;
         H[2] = b;
-    };
+    }
     return (H);
-};
+}

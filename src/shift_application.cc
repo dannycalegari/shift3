@@ -25,6 +25,11 @@ ShiftApplication::ShiftApplication()
     interpolate_mode = false;
 }
 
+ShiftApplication::~ShiftApplication()
+{
+
+}
+
 void ShiftApplication::on_activate()
 {
     window = new Gtk::Window();
