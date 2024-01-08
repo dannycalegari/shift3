@@ -25,17 +25,22 @@ ShiftApplication::ShiftApplication()
     interpolate_mode = false;
 }
 
+ShiftApplication::~ShiftApplication()
+{
+
+}
+
 void ShiftApplication::on_activate()
 {
     window = new Gtk::Window();
     window->add_events(Gdk::KEY_PRESS_MASK);
     window->signal_key_press_event().connect(sigc::mem_fun(*this, &ShiftApplication::on_key_press));
-    p_area = new PQDrawingArea();
-    q_area = new PQDrawingArea();
+    p_area = Gtk::manage(new PQDrawingArea());
+    q_area = Gtk::manage(new PQDrawingArea());
     p_area->p_type = true;
     q_area->p_type = false;
-    julia_area = new JuliaDrawingArea();
-    elamination_area = new ElaminationDrawingArea();
+    julia_area = Gtk::manage(new JuliaDrawingArea());
+    elamination_area = Gtk::manage(new ElaminationDrawingArea());
 
     p_area->set_name("p_area");
     q_area->set_name("q_area");
@@ -130,6 +135,7 @@ bool ShiftApplication::on_key_press(GdkEventKey* event)
         zoom = zoom / 1.1;
     } else if (event->keyval == GDK_KEY_q) {
         this->quit();
+        return true;
     } else if (event->keyval == GDK_KEY_i) {
         interpolate_mode = 1 - interpolate_mode;
     }

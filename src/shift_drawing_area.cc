@@ -10,6 +10,11 @@ ShiftDrawingArea::ShiftDrawingArea()
     signal_button_press_event().connect(sigc::mem_fun(*this, &ShiftDrawingArea::on_button_press));
 }
 
+ShiftDrawingArea::~ShiftDrawingArea()
+{
+
+}
+
 bool ShiftDrawingArea::on_point_set(const Cairo::RefPtr<Cairo::Context>& cr)
 {
     Gdk::Rectangle allocation = get_allocation();

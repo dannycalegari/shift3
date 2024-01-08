@@ -12,7 +12,10 @@ PQDrawingArea::PQDrawingArea()
     signal_draw().connect(sigc::mem_fun(*this, &PQDrawingArea::on_draw));
 }
 
-PQDrawingArea::~PQDrawingArea() { }
+PQDrawingArea::~PQDrawingArea()
+{
+
+}
 
 bool PQDrawingArea::on_point_set(const Cairo::RefPtr<Cairo::Context>& cr)
 {

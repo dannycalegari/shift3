@@ -20,8 +20,8 @@ double pow(double d, int i)
         return (1.0);
     } else {
         return (d * pow(d, i - 1));
-    };
-};
+    }
+}
 
 std::vector<cpx> radial_segment(cpx z, double R, int i)
 {
@@ -36,9 +36,9 @@ std::vector<cpx> radial_segment(cpx z, double R, int i)
         jj = (double)j;
         ii = (double)i;
         L.push_back(z * exp(T * jj / ii));
-    };
+    }
     return (L);
-};
+}
 
 cpx better_bottcher(cpx p, cpx q, cpx z)
 {
@@ -47,7 +47,7 @@ cpx better_bottcher(cpx p, cpx q, cpx z)
 
     double maxsize, T, b_abs, b_arg;
     bool escape;
-    int i, j, escape_iterate, max_iterate;
+    int escape_iterate, max_iterate;
     std::vector<cpx> w, L, LL;
     cpx u;
 
@@ -58,7 +58,7 @@ cpx better_bottcher(cpx p, cpx q, cpx z)
     w.clear();
     w.push_back(z);
 
-    for (i = 0; i < max_iterate; i++) {
+    for (int i = 0; i < max_iterate; i++) {
         w.push_back(eval(p, q, w[i]));
         if (abs(w[i + 1]) > maxsize) {
             T = log(abs(w[i + 1]));
@@ -66,32 +66,33 @@ cpx better_bottcher(cpx p, cpx q, cpx z)
             escape = true;
             escape_iterate = i; // not i+1;
             i = max_iterate;
-        };
-    };
+        }
+    }
     if (escape == false) {
         return (1.0);
-    };
+    }
 
     // determine argument b_arg of bottcher coordinate
 
     L = radial_segment(w[escape_iterate], 10000.0, 1000);
+    int l_size = (int)L.size();
 
-    for (i = escape_iterate - 1; i > -1; i--) {
+    for (int i = escape_iterate - 1; i > -1; i--) {
         LL.clear();
         LL.push_back(w[i]);
-        for (j = 1; j < L.size(); j++) {
+        for (int j = 1; j < l_size; j++) {
             u = newton_preimage(p, q, L[j], LL[j - 1]);
             LL.push_back(u);
-        };
+        }
         L = radial_segment(LL[LL.size() - 1], 10000.0, 1000);
         LL.insert(LL.end(), L.begin(), L.end());
         L = LL;
-    };
+    }
 
     b_arg = arg(L[L.size() - 1]);
     std::cout << "bottcher coordinate is " << b_abs * exp(I * b_arg) << "\n";
     return (b_abs * exp(I * b_arg));
-};
+}
 
 cpx bottcher(cpx p, cpx q, cpx z)
 {
@@ -122,11 +123,11 @@ cpx bottcher(cpx p, cpx q, cpx z)
             escapes = true;
             escape_iterate = i + 1;
             i = max_iterate; // escape loop; is there a more elegant way?
-        };
-    };
+        }
+    }
     if (escapes == false) {
         return (1.0);
-    };
+    }
 
     // determine argument b_arg of bottcher coordinate
 
@@ -152,14 +153,14 @@ cpx bottcher(cpx p, cpx q, cpx z)
             escape_iterate = escape_iterate - 1;
             w = eval_iterate(p, q, zz, escape_iterate);
             alpha = arg(w);
-        };
-    };
+        }
+    }
 
     b_arg = arg(zz);
 
     w = b_abs * exp(I * b_arg);
     return (w);
-};
+}
 
 cpx bottcher2(cpx p, cpx q, cpx z)
 {
@@ -190,11 +191,11 @@ cpx bottcher2(cpx p, cpx q, cpx z)
             escapes = true;
             escape_iterate = i + 1;
             i = max_iterate; // escape loop; is there a more elegant way?
-        };
-    };
+        }
+    }
     if (escapes == false) {
         return (1.0);
-    };
+    }
 
     // determine argument b_arg of bottcher coordinate
     // zz is initialized to z.
@@ -215,15 +216,56 @@ cpx bottcher2(cpx p, cpx q, cpx z)
         if (abs(w) > maxsize * maxsize) { // if w is too big
             escape_iterate = escape_iterate - 1; // decrement escape_iterate
             w = eval_iterate(p, q, zz, escape_iterate); // new value of w
-        };
-    };
+        }
+    }
 
     b_arg = arg(zz);
 
     w = b_abs * exp(I * b_arg);
 
     return (w);
-};
+}
+
+void compute_flow_segments(cpx b, double S, double L, double LL, std::vector<cpx>& flow_segment, bool flag_rotate)
+{
+    cpx z;
+    double T;
+    while (S >= 0.0) {
+        T = exp(log(L) * exp(S * log(3.0))); // from 100 to 1000000
+        if (flag_rotate) {
+            double v = std::arg(b);
+            z = (L + ((T - L) / (LL - L)) * (LL - L)) * exp(I * v);
+        } else {
+            z = b + ((T - L) / (LL - L)) * (LL - b);
+        }
+        flow_segment.push_back(z);
+        S = S - 0.1;
+    }
+}
+
+void compute_newton_preimages(int initial_value, int array_length, int offset_a, int offset_b, cpx p, cpx q,  std::vector<cpx>& flow_segment)
+{
+    cpx z;
+    for (int i = 1; i < array_length; i++) {
+        z = newton_preimage(p, q, flow_segment[initial_value - offset_a], flow_segment[initial_value + offset_b]);
+        flow_segment.push_back(z);
+        initial_value++;
+        // Exit the loop if the segment is small
+        if ((abs(flow_segment[initial_value - 1] - flow_segment[initial_value]) < 0.0001)) {
+            break;
+        }
+    }
+}
+
+void compute_newton_preimages(int initial_value, int array_length, int offset_a, cpx p, cpx q, std::vector<cpx> flow_segment, std::vector<cpx>& flow_segment_2)
+{
+    cpx z;
+    for (int i = 1; i < array_length; i++) {
+        z = newton_preimage(p, q, flow_segment[initial_value], flow_segment_2[initial_value + offset_a]);
+        flow_segment_2.push_back(z);
+        initial_value++;
+    }
+}
 
 std::vector<std::vector<cpx>> Julia_green(cpx p, cpx q)
 {
@@ -237,20 +279,16 @@ std::vector<std::vector<cpx>> Julia_green(cpx p, cpx q)
     std::vector<cpx> flow_segment, flow_segment_2;
     cpx b, b1, b2, z;
     std::array<cpx, 3> c;
-    double L, LL; // large real number, eg 100
+    double L = 100.0;
+    double LL = pow(L, 3.0);
 
-    L = 100.0;
-    LL = L * L * L;
-
-    flow_collection.clear();
+    flow_collection.clear(); // I don't think we need this
 
     /* initializing flow segment */
-
-    flow_segment.clear();
+    flow_segment.clear(); // I don't think we need this
 
     flow_segment.push_back(LL);
     c = preimage(p, q, LL); // array of 3 preimages
-
     b = newton_preimage(p, q, LL, L); // b is preimage closest to L
 
     // b1 and b2 are the other two preimages
@@ -264,115 +302,62 @@ std::vector<std::vector<cpx>> Julia_green(cpx p, cpx q)
     } else {
         b1 = c[0];
         b2 = c[1];
-    };
+    }
 
     /* initial segment is a straight line consisting of 10 segments
     subdivided logarithmically from LL to b */
-
-    double S, T;
-
-    for (S = 0.9; S >= 0.0; S = S - 0.1) {
-        T = exp(log(L) * exp(S * log(3.0))); // from 100 to 1000000
-        z = b + ((T - L) / (LL - L)) * (LL - b);
-        flow_segment.push_back(z);
-    };
-
+    double S = 0.9;
+    bool flag_rotate = false;
+    compute_flow_segments(b, S, L, LL, flow_segment, flag_rotate);
     /* continuing flow segment by inverse image,
     obtained by Newton's method for continuity */
-
-    int i, j;
-    j = 10; // initial value
-
-    for (i = 0; i < 500; i++) {
-        z = newton_preimage(p, q, flow_segment[j - 9], flow_segment[j]);
-        flow_segment.push_back(z);
-        j++;
-        if (abs(flow_segment[j - 1] - flow_segment[j]) < 0.0001) { // keep going until segment is small
-            i = 500;
-        };
-    };
-
+    int j = 10; // initial value
+    int array_length =  500;
+    int offset_a = 9;
+    int offset_b = 0;
+    compute_newton_preimages(j, array_length, offset_a, offset_b, p, q, flow_segment);
     flow_collection.push_back(flow_segment); // add segment to the collection
 
-    /* compute two other preimages of initial flow_segment */
-
-    flow_segment_2.clear();
+    // /* compute two other preimages of initial flow_segment */
+    flow_segment_2.clear(); // I don't think we need this
     L = abs(b1);
-    LL = L * L * L;
-    for (S = 1.0; S >= 0.0; S = S - 0.1) {
-        T = exp(log(L) * exp(S * log(3.0))); // from 100 to 1000000
-        z = L + ((T - L) / (LL - L)) * (LL - L);
-        z = z * exp(I * arg(b1));
-        flow_segment_2.push_back(z);
-    };
-
+    LL = pow(L, 3.0);
+    S = 1.0;
+    flag_rotate = true;
+    compute_flow_segments(b1, S, L, LL, flow_segment_2, flag_rotate);
     j = 1; // initial value
-    for (i = 1; i < flow_segment.size() - 10; i++) {
-        z = newton_preimage(p, q, flow_segment[j], flow_segment_2[10 + j - 1]);
-        flow_segment_2.push_back(z);
-        j++;
-    };
-
+    array_length = (int)flow_segment.size() - 10;
+    offset_a = 9;
+    compute_newton_preimages(j, array_length, offset_a, p, q, flow_segment, flow_segment_2);
     flow_collection.push_back(flow_segment_2); // add segment to the collection
 
     flow_segment_2.clear();
     L = abs(b2);
-    LL = L * L * L;
-    for (S = 1.0; S >= 0.0; S = S - 0.1) {
-        T = exp(log(L) * exp(S * log(3.0))); // from 100 to 1000000
-        z = L + ((T - L) / (LL - L)) * (LL - L);
-        z = z * exp(I * arg(b2));
-        flow_segment_2.push_back(z);
-    };
-
-    j = 1; // initial value
-    for (i = 1; i < flow_segment.size() - 10; i++) {
-        z = newton_preimage(p, q, flow_segment[j], flow_segment_2[10 + j - 1]);
-        flow_segment_2.push_back(z);
-        j++;
-    };
-
+    LL = pow(L, 3.0);
+    compute_flow_segments(b2, S, L, LL, flow_segment_2, flag_rotate);
+    compute_newton_preimages(j, array_length, offset_a, p, q, flow_segment, flow_segment_2);
     flow_collection.push_back(flow_segment_2); // add segment to the collection
 
-    /* recursively add all preimages of last added flow segments */
-
-    int l, k;
-
-    for (l = 1; l < 81; l++) {
+    // /* recursively add all preimages of last added flow segments */
+    for (int l = 1; l < 81; l++) {
         c = preimage(p, q, flow_collection[l][0]);
-        for (k = 0; k < 3; k++) {
+        for (int k = 0; k < 3; k++) {
             flow_segment.clear();
-
+            array_length = (int)flow_collection[l].size() - 10;
             if (l < 9) {
                 L = abs(c[k]);
-                LL = L * L * L;
-                for (S = 1.0; S >= 0.0; S = S - 0.1) {
-                    T = exp(log(L) * exp(S * log(3.0))); // from 100 to 1000000
-                    z = L + ((T - L) / (LL - L)) * (LL - L);
-                    z = z * exp(I * arg(c[k]));
-                    flow_segment.push_back(z);
-                };
-
-                j = 1; // initial value
-                for (i = 1; i < flow_collection[l].size() - 10; i++) {
-                    z = newton_preimage(p, q, flow_collection[l][j], flow_segment[10 + j - 1]);
-                    flow_segment.push_back(z);
-                    j++;
-                };
+                LL = pow(L, 3.0);
+                compute_flow_segments(c[k], S, L, LL, flow_segment, flag_rotate);
+                offset_a = 9;
+                compute_newton_preimages(j, array_length, offset_a, p, q, flow_collection[l], flow_segment);
             } else {
                 flow_segment.push_back(c[k]);
-                j = 1;
-                for (i = 1; i < flow_collection[l].size() - 10; i++) {
-                    z = newton_preimage(p, q, flow_collection[l][j], flow_segment[j - 1]);
-                    flow_segment.push_back(z);
-                    j++;
-                };
-            };
-
+                offset_a = -1;
+                compute_newton_preimages(j, array_length, offset_a, p, q, flow_collection[l], flow_segment);
+            }
             flow_collection.push_back(flow_segment);
-        };
-    };
-
+        }
+    }
     return (flow_collection);
 }
 
@@ -398,16 +383,15 @@ cpx bottcher_3(cpx p, cpx q, cpx z)
             escapes = true;
             escape_iterate = i + 1;
             break;
-        };
-    };
+        }
+    }
     if (escapes == false) {
         return (1.0);
-    };
+    }
 
     std::vector<std::vector<cpx>> paths;
     /* paths[j] is path from w^3 to w*(some cube root of unity),
        such that arg(paths[j].last) is in [j/3,(j+1)/3]*2pi */
-    cpx omega = exp(cpx(0, 2.0 * M_PI / 3)), omega2 = exp(cpx(0, 4.0 * M_PI / 3));
     for (int j = 0; j < 3; j++) {
         cpx start = log(-pow(w, 3.0)) + cpx(0, M_PI),
             stop = log(-w) + cpx(0, M_PI) + cpx(0, j * 2.0 * M_PI / 3);
@@ -417,10 +401,13 @@ cpx bottcher_3(cpx p, cpx q, cpx z)
             paths[j].push_back(exp((i * stop + (100 - i) * start) / 100.0));
     }
 
+    int path_size;
+
     for (int t = escape_iterate - 1; t >= 0; t--) {
         // lift paths by continuity
         for (int j = 0; j < 3; j++) {
-            for (int i = 0; i < paths[j].size(); i++) {
+            path_size = (int)paths[j].size();
+            for (int i = 0; i < path_size; i++) {
                 if (i == 0)
                     paths[j][i] = orbit[t];
                 else
@@ -472,7 +459,7 @@ std::array<leaf, 2> critical_bottcher_coordinates(cpx p, cpx q)
                 escaped = true;
                 j = maxiter;
             }
-        };
+        }
 
         if (escaped == false) {
             L.height = 1.0;
@@ -510,10 +497,10 @@ std::array<leaf, 2> critical_bottcher_coordinates(cpx p, cpx q)
             L.angle[1] = beta;
 
             CL[i] = L;
-        };
-    };
+        }
+    }
     return (CL);
-};
+}
 
 void bottcher_first(cpx p, cpx q, cpx z, cpx yy, double& alpha, double& rho)
 {
@@ -521,13 +508,13 @@ void bottcher_first(cpx p, cpx q, cpx z, cpx yy, double& alpha, double& rho)
     w = bottcher2(p, q, w);
     alpha = arg(w);
     rho = abs(w);
-};
+}
 
 void bottcher_second(cpx p, cpx q, cpx z, cpx yy, double& beta)
 {
     cpx w = z + yy; // perturbation of critical point
     beta = arg(bottcher2(p, q, w));
-};
+}
 
 void correct_angles(double& alpha, double& beta)
 {
@@ -542,7 +529,7 @@ void correct_angles(double& alpha, double& beta)
             beta = alpha - (2.0 * TWOPI / 3.0);
         } else {
             std::cout << "Something's wrong! alpha = " << alpha << " ; beta = " << beta << " ; difference = " << alpha - beta << "\n";
-        };
+        }
     } else {
         if (abs(beta - alpha - (TWOPI / 3.0)) < 0.01) {
             alpha = beta - (TWOPI / 3.0);
@@ -550,6 +537,6 @@ void correct_angles(double& alpha, double& beta)
             alpha = beta - (2.0 * TWOPI / 3.0);
         } else {
             std::cout << "Something's wrong! alpha = " << alpha << " ; beta = " << beta << " ; difference = " << alpha - beta << "\n";
-        };
-    };
-};
+        }
+    }
+}

@@ -10,6 +10,11 @@ ElaminationDrawingArea::ElaminationDrawingArea()
     signal_button_press_event().connect(sigc::mem_fun(*this, &ElaminationDrawingArea::on_button_press));
 }
 
+ElaminationDrawingArea::~ElaminationDrawingArea()
+{
+
+}
+
 bool ElaminationDrawingArea::on_point_set(const Cairo::RefPtr<Cairo::Context>& cr)
 {
     Gdk::Rectangle allocation = get_allocation();
@@ -50,7 +55,7 @@ bool ElaminationDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
     Gtk::Allocation allocation = get_allocation();
     const int width = allocation.get_width();
     const int height = allocation.get_height();
-    int xc, yc, i, a, b, c;
+    int xc, yc, a, b, c;
     double xx, yy, x0, y0, r, rr;
     xc = width / 2;
     yc = height / 2;
@@ -66,6 +71,7 @@ bool ElaminationDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
 
         std::vector<leaf> LL;
         LL = dynamical_lamination(5, C);
+        int ll_size = (int)LL.size();
 
         cr->set_line_width(1.0);
         cr->set_source_rgb(0.0, 0.0, 0.0);
@@ -75,7 +81,7 @@ bool ElaminationDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
         cr->arc(xc, yc, 0.5 * xc, 0.0, 2.0 * M_PI); // set clip region
         cr->clip(); // to unit circle
 
-        for (i = 0; i < LL.size(); i++) {
+        for (int i = 0; i < ll_size; i++) {
             // draw circular chords as circles clipped to the unit circle
             x0 = cos(LL[i].angle[0]);
             y0 = sin(LL[i].angle[0]);
@@ -107,7 +113,7 @@ bool ElaminationDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
         cr->arc(xc, yc, 0.5 * xc, 0.0, 2.0 * M_PI); // unit circle
         cr->stroke();
 
-        for (i = 0; i < LL.size(); i++) {
+        for (int i = 0; i < ll_size; i++) {
             // draw peripheral segments
             a = xc + 0.5 * xc * cos(LL[i].angle[0]) * LL[i].height;
             b = yc + 0.5 * yc * sin(LL[i].angle[0]) * LL[i].height;

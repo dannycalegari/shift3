@@ -6,6 +6,7 @@
 class ShiftDrawingArea : public Gtk::DrawingArea {
 public:
     ShiftDrawingArea();
+    virtual ~ShiftDrawingArea();
     void set_input_point(int x, int y);
     void on_p_set();
 

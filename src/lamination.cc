@@ -11,14 +11,14 @@ leaf leaf_from_angles(double alpha, double beta, double h)
     L.angle[0] = alpha;
     L.angle[1] = beta;
     return (L);
-};
+}
 
 cpx zee(leaf l, int i)
 {
     cpx w;
     w = l.height * exp(I * l.angle[i]);
     return (w);
-};
+}
 
 bool link(leaf l, leaf m)
 {
@@ -36,8 +36,8 @@ bool link(leaf l, leaf m)
         return (false); // unlinked
     } else {
         return (true);
-    };
-};
+    }
+}
 
 double normalize_angle(double theta)
 {
@@ -46,7 +46,7 @@ double normalize_angle(double theta)
     y = sin(theta);
     phi = atan2(y, x);
     return (phi);
-};
+}
 
 std::array<leaf, 3> preimage(leaf L)
 {
@@ -61,7 +61,7 @@ std::array<leaf, 3> preimage(leaf L)
         M[i].angle[1] = normalize_angle((L.angle[1] / 3.0) + ((double)i) * TWOPI / 3.0);
     };
     return (M);
-};
+}
 
 std::vector<leaf> dynamical_lamination(int depth, std::array<leaf, 2> C)
 {
@@ -121,16 +121,16 @@ std::vector<leaf> dynamical_lamination(int depth, std::array<leaf, 2> C)
                         LL.push_back(N[1]);
                         LL.push_back(N[2]);
                         found_preimage = true;
-                    };
+                    }
                 } else {
                     // cyclically permute second angle
                     t = N[2].angle[1];
                     N[2].angle[1] = N[1].angle[1];
                     N[1].angle[1] = N[0].angle[1];
                     N[0].angle[1] = t;
-                };
-            };
-        };
+                }
+            }
+        }
 
         // append LL to M
 
@@ -143,7 +143,7 @@ std::vector<leaf> dynamical_lamination(int depth, std::array<leaf, 2> C)
         // clear LL
 
         LL.clear();
-    };
+    }
 
     return (M);
-};
+}
