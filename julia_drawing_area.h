@@ -19,7 +19,7 @@ protected:
     bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
     bool on_button_press(GdkEventButton* event);
     bool on_point_set(const Cairo::RefPtr<Cairo::Context>& cr);
-    julia_pixels calc_points(std::vector<std::vector<cpx>> F, int i, int j, int xc, int yc);
+    julia_pixels calc_points(cpx FI, int xc, int yc);
     void construct_drawing(int i, int xc, int yc, std::vector<cpx> attracting_orbits, std::promise<std::map<julia_pixels, color_value>>&& p, int width);
 
 private:
