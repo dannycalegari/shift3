@@ -55,10 +55,10 @@ bool JuliaDrawingArea::on_button_press(GdkEventButton* event)
     return true;
 }
 
-julia_pixels JuliaDrawingArea::calc_points(std::vector<std::vector<cpx>> F, int i, int j, int xc, int yc)
+julia_pixels JuliaDrawingArea::calc_points(cpx FI, int xc, int yc)
 {
-    double xx = F[i][j].real() / 2.0;
-    double yy = F[i][j].imag() / 2.0;
+    double xx = FI.real() / 2.0;
+    double yy = FI.imag() / 2.0;
     double r = sqrt(xx * xx + yy * yy);
 
     if (r > 3.0) {
@@ -89,18 +89,20 @@ bool JuliaDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
         std::vector<std::vector<cpx>> F = Julia_green(P, Q); // should be Julia_green(p,q)
         cr->set_line_width(1.0);
         cr->set_source_rgb(0.5, 0.0, 0.0);
-        int f_size = (int)F.size();
-
-        for (int i = 0; i < f_size; i++) {
-            julia_pixels j_points = JuliaDrawingArea::calc_points(F, i, 0, xc, yc);
+        julia_pixels j_points;
+        cpx FI;
+        for (int i = 0; i < (int)F.size(); i++) {
+            FI = F[i][0];
+            j_points = JuliaDrawingArea::calc_points(FI, xc, yc);
             cr->move_to(std::get<0>(j_points), std::get<1>(j_points));
-            int fi_size = (int)F[i].size();
-            for (int j = 1; j < fi_size; j++) {
-                j_points = JuliaDrawingArea::calc_points(F, i, j, xc, yc);
+
+            for (int j = 1; j < (int)F[i].size(); j++) {
+                FI = F[i][j];
+                j_points = JuliaDrawingArea::calc_points(FI, xc, yc);
                 cr->line_to(std::get<0>(j_points), std::get<1>(j_points));
-            };
+            }
             cr->stroke();
-        };
+        }
     } else {
         // draw julia set pixel by pixel
 
@@ -122,51 +124,50 @@ bool JuliaDrawingArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr)
                 if (abs(z) > 5.0) { // escape
                     converge_to_orbit = false;
                     j = 400;
-                };
-            };
+                }
+            }
 
             if (converge_to_orbit) {
                 attracting_orbits.push_back(z);
             }
         }
 
-        /* step 2: for each point in the drawing area, compute time either to escape
-        or to approach periodic orbit of critical point. */
-
-        // Create threads
-        std::vector<std::pair<std::thread, std::future<std::map<julia_pixels, color_value>>>> threads;
-        // std::cout << threads.max_size();
-        for (int i = 0; i < height; i++) {
-            std::promise<std::map<julia_pixels, color_value>> prom;
-            std::future<std::map<julia_pixels, color_value>> futo = prom.get_future();
-            std::thread th(&JuliaDrawingArea::construct_drawing, this, i, xc, yc, attracting_orbits, std::move(prom), width);
-            threads.push_back(make_pair(std::move(th), std::move(futo)));
-        }
-
-        // Get results from threads
-        for (auto& th : threads) {
-            auto t = move(th.first);
-            auto prom_result = move(th.second);
-            std::map<julia_pixels, color_value> results = prom_result.get();
-            for (const auto& iter : results) {
-                julia_pixels k = iter.first;
-                color_value v = iter.second;
-                drawing_points.emplace(k, v);
+        // step 2: for each point in the drawing area, compute time either to escape
+        // or to approach periodic orbit of critical point.
+        int maxiter = 60;
+        std::array<double, 3> H;
+        for (int i = 0; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                double xx = (double)(i - xc) / (double)(xc);
+                double yy = (double)(j - yc) / (double)(yc);
+                z = xx + I * yy; // initial value
+                z = z * 2.0; // scale for window
+                for (int k = 0; k < maxiter; k++) {
+                    z = eval(P, Q, z);
+                    if (abs(z) > 5.0) { // escape
+                        H = color_code(k, maxiter, 0);
+                        cr->set_source_rgb(H[0], H[1], H[2]);
+                        cr->move_to(i, j);
+                        cr->line_to(i + 1, j);
+                        cr->stroke();
+                        break;
+                    } else {
+                        for (int l = 0; l < (int)attracting_orbits.size(); l++) {
+                            if (abs(z - attracting_orbits[l]) < 0.01) {
+                                // converge to attracting orbit
+                                H = color_code(k, maxiter, attracting_orbits.size());
+                                cr->set_source_rgb(H[0], H[1], H[2]);
+                                cr->move_to(i, j);
+                                cr->line_to(i + 1, j);
+                                cr->stroke();
+                                k = maxiter;
+                                l = 2;
+                            }
+                        }
+                    }
+                }
             }
-            t.join();
         }
-        // Draw results to the screen
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                color_value H = drawing_points[std::make_tuple(i, j)];
-                cr->set_source_rgb(H[0], H[1], H[2]);
-                cr->move_to(i, j);
-                cr->line_to(i + 1, j);
-                cr->stroke();
-            }
-        }
-        drawing_points.clear();
-        threads.clear();
     }
 
     return true;
